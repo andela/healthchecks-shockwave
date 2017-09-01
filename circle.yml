@@ -1,0 +1,11 @@
+
+# Deployment to heroku
+deployment:
+  production:
+    branch: master
+    heroku:
+      appname: healthcheck-shockwave
+  staging:
+    branch: development
+    heroku:
+      appname: healthcheck-shockwave-staging
