@@ -13,12 +13,17 @@ jobs:
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
       # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/postgres:9.4
+      - image: circleci/postgres:9.4
+        environment:
+          - POSTGRES_DB: hc-test
+          - POSTGRES_USER: root
+          - POSTGRES_PASSWORD: ""
 
     working_directory: ~/repo
 
     steps:
       - checkout
+      - run: sudo apt-get update -qq && sudo apt-get install postgresql
 
       # Download and cache dependencies
       - restore_cache:
@@ -41,13 +46,23 @@ jobs:
             - ./venv
           key: v1-dependencies-{{ checksum "requirements.txt" }}
 
+      - run:
+          name: Set up DB
+          command: |
+            sudo service postgresql start
+            createdb -h localhost -U root hc
+            . venv/bin/activate
+            python manage.py migrate
+          environment:
+            DATABASE_URL: 'postgres://root@localhost:5432/hc-test'
+
       # run tests!
       - run:
           name: run tests
           command: |
             . venv/bin/activate
             ./cc-test-reporter before-build
-            coverage run --source='./hc' manage.py test
+            coverage run --omit=*/tests/* --source='./hc' manage.py test
             coverage xml
             ./cc-test-reporter after-build --exit-code $?
 
