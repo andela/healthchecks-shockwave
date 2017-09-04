@@ -3,6 +3,7 @@
 [![Test Coverage](https://codeclimate.com/github/andela/healthchecks-shockwave/badges/coverage.svg)](https://codeclimate.com/github/andela/healthchecks-shockwave/coverage)
 [![Code Climate](https://codeclimate.com/github/andela/healthchecks-shockwave/badges/gpa.svg)](https://codeclimate.com/github/andela/healthchecks-shockwave)
 [![Issue Count](https://codeclimate.com/github/andela/healthchecks-shockwave/badges/issue_count.svg)](https://codeclimate.com/github/andela/healthchecks-shockwave)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/775d3201173d4e13b4606212942bfc11)](https://www.codacy.com/app/malmike/healthchecks-shockwave?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=andela/healthchecks-shockwave&amp;utm_campaign=Badge_Grade)
 
 ![Screenshot of Welcome page](/stuff/screenshots/welcome.png?raw=true "Welcome Page")
 
