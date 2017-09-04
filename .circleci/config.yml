@@ -15,7 +15,7 @@ jobs:
       # documented at https://circleci.com/docs/2.0/circleci-images/
       # - image: circleci/postgres:9.4
 
-    working_directory: ~/healthchecks-shockwave
+    working_directory: ~/repo
 
     steps:
       - checkout
@@ -32,6 +32,8 @@ jobs:
           command: |
             python3 -m venv venv
             . venv/bin/activate
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > "cc-test-reporter"
+            chmod +x "cc-test-reporter"
             pip install -r requirements.txt
 
       - save_cache:
@@ -44,7 +46,10 @@ jobs:
           name: run tests
           command: |
             . venv/bin/activate
-            python manage.py test
+            ./cc-test-reporter before-build
+            coverage run --source='./hc' manage.py test
+            coverage xml
+            ./cc-test-reporter after-build --exit-code $?
 
       - store_artifacts:
           path: test-reports
