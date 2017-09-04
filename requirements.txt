@@ -8,7 +8,7 @@ premailer==2.9.6
 psycopg2==2.6.1
 requests==2.9.1
 mock==2.0.0
-gunicorn==19.7.1
 coverage==4.4.1
-
-
+gunicorn==19.7.1
+dj-database-url==0.4.2
+whitenoise==3.3.0
