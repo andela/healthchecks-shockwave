@@ -1,4 +1,8 @@
 # healthchecks
+[![CircleCI](https://circleci.com/gh/andela/healthchecks-shockwave.svg?style=svg)](https://circleci.com/gh/andela/healthchecks-shockwave)
+[![Test Coverage](https://codeclimate.com/github/andela/healthchecks-shockwave/badges/coverage.svg)](https://codeclimate.com/github/andela/healthchecks-shockwave/coverage)
+[![Code Climate](https://codeclimate.com/github/andela/healthchecks-shockwave/badges/gpa.svg)](https://codeclimate.com/github/andela/healthchecks-shockwave)
+[![Issue Count](https://codeclimate.com/github/andela/healthchecks-shockwave/badges/issue_count.svg)](https://codeclimate.com/github/andela/healthchecks-shockwave)
 
 ![Screenshot of Welcome page](/stuff/screenshots/welcome.png?raw=true "Welcome Page")
 
@@ -176,11 +180,11 @@ There are separate Django management commands for each task:
 
     ```
     $ ./manage.py pruneusers
-    ```    
+    ```
 
-When you first try these commands on your data, it is a good idea to 
-test them on a copy of your database, not on the live database right away. 
-In a production setup, you should also have regular, automated database 
+When you first try these commands on your data, it is a good idea to
+test them on a copy of your database, not on the live database right away.
+In a production setup, you should also have regular, automated database
 backups set up.
 
 ## Integrations
