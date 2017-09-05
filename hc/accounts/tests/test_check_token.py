@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 from hc.test import BaseTestCase
 
@@ -22,7 +23,20 @@ class CheckTokenTestCase(BaseTestCase):
         self.assertEqual(self.profile.token, "")
 
     ### Login and test it redirects already logged in
+    def test_login_redirects(self):
+        user = User(username="robert", email="robert@example.org")
+        user.set_password("roba")
+        user.save()
+        form = {"email": "robert@example.org", "password": "roba"}
+        r = self.client.post("/accounts/login/", form)
+        self.assertRedirects(r, "/checks/")
 
     ### Login with a bad token and check that it redirects
+    def test_login_badtoken(self):
+        user = User(username="robert", email="robert@example.org")
+        user.set_password("roba")
+        user.save()
+        r = self.client.post("/accounts/check_token/robert/wrong_token/")
+        self.assertRedirects(r, "/accounts/login/")
 
     ### Any other tests?
