@@ -11,7 +11,8 @@ class ApiAdminTestCase(BaseTestCase):
         self.alice.is_staff = True
         self.alice.is_superuser = True
         self.alice.save()
-       
+        self.assertTrue(self.alice.is_staff)
+        self.assertTrue(self.alice.is_superuser)
 
     def test_it_shows_channel_list_with_pushbullet(self):
         self.client.login(username="alice@example.org", password="password")
