@@ -34,3 +34,10 @@ class PauseTestCase(BaseTestCase):
                              HTTP_X_API_KEY="abc")
 
         assert resp.status_code == 405
+
+    def test_it_validates_uuid(self):
+        url = "/api/v1/checks/07c2f548-9850-4b27-af5d-6c9dc157ec03/pause"
+        resp = self.client.post(url, "", content_type="application/json",
+                             HTTP_X_API_KEY="abc")
+
+        self.assertEqual(resp.status_code, 400)
