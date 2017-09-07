@@ -56,3 +56,16 @@ class AddChannelTestCase(BaseTestCase):
         self.assertContains(get_alices_integrations, "team_email@example.org")
         get_added_channel = Channel.objects.get(value="team_email@example.org")
         self.assertEqual(get_added_channel.user.username, 'alice')
+
+    ### Test that bad kinds don't work
+    def test_bad_kind_doesnt_work(self):
+        """Test that bad kinds of channels cannot be added
+        A bad kind of channel, a channel that does not exist on the tuple
+        CHANNEL_KINDS on the api/models.py file, is passed and should return
+        a bad request response.
+        """
+        url = "/integrations/add/"
+        form = {"kind": "gitter", "value": "alice@example.org"}
+        self.client.login(username="alice@example.org", password="password")
+        post_bad_channel = self.client.post(url, form)
+        self.assertEqual(post_bad_channel.status_code, 400)
