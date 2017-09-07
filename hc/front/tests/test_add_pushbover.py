@@ -39,7 +39,7 @@ class AddPushoverTestCase(BaseTestCase):
 
     ### Test that pushover validates priority
     def test_it_validates_priority(self):
-            """Test parameter priority is checked before adding a pushover.
+        """Test parameter priority is checked before adding a pushover.
         Pushover priority parameter should range as:
         -2 -- Lowest priority
         -1 -- Low priority
