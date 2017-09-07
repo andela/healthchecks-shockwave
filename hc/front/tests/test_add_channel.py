@@ -38,4 +38,21 @@ class AddChannelTestCase(BaseTestCase):
             self.assertContains(r, "Integration Settings", status_code=200)
 
     ### Test that the team access works
-    ### Test that bad kinds don't work
+    def test_team_access_works(self):
+        """Test that team members can view all added channels, added by any
+        member in the team while non-members cannot.
+        Bob a team member adds an email channel. Alice logs in and views email
+        channel added on her page. Test that channel added contains the user
+        name of the alice who is the team creator.
+        """
+        url = "/integrations/add/"
+        form = {"kind": "email", "value": "team_email@example.org"}
+        self.client.login(username="bob@example.org", password="password")
+        self.client.post(url, form)
+        self.client.logout()
+        url2 = "/integrations/"
+        self.client.login(username="alice@example.org", password="password")
+        get_alices_integrations = self.client.get(url2)
+        self.assertContains(get_alices_integrations, "team_email@example.org")
+        get_added_channel = Channel.objects.get(value="team_email@example.org")
+        self.assertEqual(get_added_channel.user.username, 'alice')
