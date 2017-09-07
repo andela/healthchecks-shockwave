@@ -24,19 +24,17 @@ class CheckTokenTestCase(BaseTestCase):
 
     ### Login and test it redirects already logged in
     def test_login_redirects(self):
-        user = User(username="robert", email="robert@example.org")
-        user.set_password("roba")
-        user.save()
-        form = {"email": "robert@example.org", "password": "roba"}
-        r = self.client.post("/accounts/login/", form)
+        self.client.post("/accounts/check_token/alice/secret-token/")
+        r = self.client.get("/accounts/check_token/alice/secret-token/")
         self.assertRedirects(r, "/checks/")
 
     ### Login with a bad token and check that it redirects
     def test_login_badtoken(self):
-        user = User(username="robert", email="robert@example.org")
-        user.set_password("roba")
-        user.save()
-        r = self.client.post("/accounts/check_token/robert/wrong_token/")
+        r = self.client.post("/accounts/check_token/alice/wrong_token/")
         self.assertRedirects(r, "/accounts/login/")
 
     ### Any other tests?
+    def test_redirects_wrong_username(self):
+        """Test it redirects to login page, when using non-existent username"""
+        r = self.client.post("/accounts/check_token/obama/wrong_token/")
+        self.assertRedirects(r, "/accounts/login/")

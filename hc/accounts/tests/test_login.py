@@ -39,4 +39,31 @@ class LoginTestCase(TestCase):
         assert "bad_link" not in self.client.session
 
         ### Any other tests?
+    def test_renders_login_page(self):
+        """ Tests that the login page is returned on a get request """
+        response = self.client.get("/accounts/login/")
+        self.assertContains(response, "Please enter your email address.")
+
+    def test_redirects_new_user(self):
+        """ Tests redirection to login link sent page for new user """
+        response = self.client.post("/accounts/login/",
+                                    {"email": "test@test.com"})
+        self.assertRedirects(response, "/accounts/login_link_sent/")
+
+    def test_redirects_valid_to_checks(self):
+        """ Tests redirects to checks for valid credentials """
+        user = User(username="robert", email="robert@example.org")
+        user.set_password("roba")
+        user.save()
+
+        form = {"email": "robert@example.org", "password": "roba"}
+        r = self.client.post("/accounts/login/", form)
+        self.assertRedirects(r, "/checks/")
+
+    def test_invalid_credentials(self):
+        """ Check if it redirects to login page for invalid credentials """
+        response = self.client.post("/accounts/login/",
+                                    {"email": "test@test.com",
+                                     "password": "pass"})
+        self.assertContains(response, "Incorrect email or password.")
 
