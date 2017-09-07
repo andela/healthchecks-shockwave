@@ -1,20 +1,26 @@
+"""A module to test adding of channels."""
 from django.test.utils import override_settings
-
 from hc.api.models import Channel
 from hc.test import BaseTestCase
 
-
 @override_settings(PUSHOVER_API_TOKEN="token", PUSHOVER_SUBSCRIPTION_URL="url")
 class AddChannelTestCase(BaseTestCase):
+    """Class to test addition of channels, controls on valid entry of channels
+    and proper access by teams on shared channels
+    """
 
     def test_it_adds_email(self):
+        '''Test that a channel email is added.
+        Email integration is added with a value for the email. The
+        request should redirect to views for integration.
+        '''
         url = "/integrations/add/"
         form = {"kind": "email", "value": "alice@example.org"}
 
         self.client.login(username="alice@example.org", password="password")
-        r = self.client.post(url, form)
+        post_email_channel = self.client.post(url, form)
 
-        self.assertRedirects(r, "/integrations/")
+        self.assertRedirects(post_email_channel, "/integrations/")
         assert Channel.objects.count() == 1
 
     def test_it_trims_whitespace(self):
@@ -30,6 +36,7 @@ class AddChannelTestCase(BaseTestCase):
         self.assertEqual(q.count(), 1)
 
     def test_instructions_work(self):
+        """Test that instructions for each channel integration work while adding"""
         self.client.login(username="alice@example.org", password="password")
         kinds = ("email", "webhook", "pd", "pushover", "hipchat", "victorops")
         for frag in kinds:
