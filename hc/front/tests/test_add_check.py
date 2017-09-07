@@ -1,14 +1,22 @@
+"""A module to test adding of checks on the front end"""
 from hc.api.models import Check
 from hc.test import BaseTestCase
 
 
 class AddCheckTestCase(BaseTestCase):
-
+    """A class to test adding of checks and proper access of checks by team
+    members.
+    """
     def test_it_works(self):
+        """Test a check is added.
+        Alice logs in as a user. Alice adds a check and is redirected to a page
+        that returns a view on her checks.The database on Checks contains check
+        added by Alice.
+        """
         url = "/checks/add/"
         self.client.login(username="alice@example.org", password="password")
-        r = self.client.post(url)
-        self.assertRedirects(r, "/checks/")
+        post_a_check = self.client.post(url)
+        self.assertRedirects(post_a_check, "/checks/")
         assert Check.objects.count() == 1
 
     ### Test that team access works
