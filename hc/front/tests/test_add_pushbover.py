@@ -38,3 +38,26 @@ class AddPushoverTestCase(BaseTestCase):
         assert r.status_code == 403
 
     ### Test that pushover validates priority
+        def test_it_validates_priority(self):
+            """Test parameter priority is checked before adding a pushover.
+        Pushover priority parameter should range as:
+        -2 -- Lowest priority
+        -1 -- Low priority
+        0 -- Normal
+        1 -- High priority
+        2 -- Emergency priority
+        Parameter outside above range should return bad request status code.
+        """
+
+        self.client.login(username="alice@example.org", password="password")
+        session = self.client.session
+        session["po_nonce"] = "n"
+        session.save()
+        invalid_prio_param_1 = "pushover_user_key=a&nonce=n&prio=-3"
+        invalid_prio_param_2 = "pushover_user_key=a&nonce=n&prio=3"
+        r_with_invalid_prio = self.client.get("/integrations/add_pushover/?%s"
+                                              % invalid_prio_param_1)
+        assert r_with_invalid_prio.status_code == 400
+        r_with_invalid_prio_2 = self.client.get("/integrations/add_pushover/?%s"
+                                                % invalid_prio_param_2)
+        self.assertEqual(r_with_invalid_prio_2.status_code, 400)
