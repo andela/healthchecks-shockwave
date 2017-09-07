@@ -69,3 +69,22 @@ class AddChannelTestCase(BaseTestCase):
         self.client.login(username="alice@example.org", password="password")
         post_bad_channel = self.client.post(url, form)
         self.assertEqual(post_bad_channel.status_code, 400)
+
+    def test_interference_across_teams(self):
+        """Test that team creator cannot access non-team members channels.
+        Charlie adds a channel and does not belong to any team. Alice owns a
+        team but cannot acces channels that belong to Charlie. Charlies added
+        channel also stores the user as charlie creating no conflict on non-
+        team members.
+        """
+        url = "/integrations/add/"
+        form = {"kind": "email", "value": "team_email_2@example.org"}
+        self.client.login(username="charlie@example.org", password="password")
+        self.client.post(url, form)
+        self.client.logout()
+        url2 = "/integrations/"
+        self.client.login(username="alice@example.org", password="password")
+        get_alices_integrations = self.client.get(url2)
+        self.assertNotContains(get_alices_integrations, "team_email_2@example.org")
+        get_charlies_channel = Channel.objects.get(value="team_email_2@example.org")
+        self.assertEqual(get_charlies_channel.user.username, 'charlie')
