@@ -7,6 +7,7 @@ from hc.api.models import Check
 class LoginTestCase(TestCase):
 
     def test_it_sends_link(self):
+        """Create a new user, and assert setup email was sent"""
         check = Check()
         check.save()
 
@@ -16,8 +17,8 @@ class LoginTestCase(TestCase):
 
         form = {"email": "alice@example.org"}
 
-        r = self.client.post("/accounts/login/", form)
-        assert r.status_code == 302
+        response = self.client.post("/accounts/login/", form)
+        assert response.status_code == 302
 
         ### Assert that a user was created
         user = User.objects.filter(email="alice@example.org").first()
@@ -34,11 +35,12 @@ class LoginTestCase(TestCase):
         self.assertTrue(check)
 
     def test_it_pops_bad_link_from_session(self):
+        """ Sets a bad_link session variable and verifies that logging in
+        removes it """
         self.client.session["bad_link"] = True
         self.client.get("/accounts/login/")
         assert "bad_link" not in self.client.session
 
-        ### Any other tests?
     def test_renders_login_page(self):
         """ Tests that the login page is returned on a get request """
         response = self.client.get("/accounts/login/")
@@ -57,8 +59,8 @@ class LoginTestCase(TestCase):
         user.save()
 
         form = {"email": "robert@example.org", "password": "roba"}
-        r = self.client.post("/accounts/login/", form)
-        self.assertRedirects(r, "/checks/")
+        response = self.client.post("/accounts/login/", form)
+        self.assertRedirects(response, "/checks/")
 
     def test_invalid_credentials(self):
         """ Check if it redirects to login page for invalid credentials """
