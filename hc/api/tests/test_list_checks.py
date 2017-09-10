@@ -33,17 +33,11 @@ class ListChecksTestCase(BaseTestCase):
 
     def test_it_works(self):
         r = self.get()
-        ### Assert the response status code
-
         doc = r.json()
         self.assertTrue("checks" in doc)
 
         checks = {check["name"]: check for check in doc["checks"]}
-        ### Assert the expected length of checks
         assert len(checks) == 2
-        ### Assert the checks Alice 1 and Alice 2's timeout, grace, ping_url, status,
-        ### last_ping, n_pings and pause_url
-        #Alice 1 Asserts
         a1_pause_url = "http://localhost:8000/api/v1/checks/"+str(self.a1.code)+"/pause"
         self.assertEqual(checks["Alice 1"]["timeout"], self.a1.timeout.total_seconds())
         self.assertEqual(checks["Alice 1"]["grace"], self.a1.grace.total_seconds())
@@ -53,7 +47,6 @@ class ListChecksTestCase(BaseTestCase):
         self.assertEqual(checks["Alice 1"]["n_pings"], self.a1.n_pings)
         self.assertEqual(checks["Alice 1"]["pause_url"], a1_pause_url)
 
-        #Alice 2 Asserts
         a2_pause_url = "http://localhost:8000/api/v1/checks/"+str(self.a2.code)+"/pause"
         self.assertEqual(checks["Alice 2"]["timeout"], self.a2.timeout.total_seconds())
         self.assertEqual(checks["Alice 2"]["grace"], self.a2.grace.total_seconds())
@@ -62,8 +55,6 @@ class ListChecksTestCase(BaseTestCase):
         self.assertEqual(checks["Alice 2"]["last_ping"], self.a2.last_ping.isoformat())
         self.assertEqual(checks["Alice 2"]["n_pings"], self.a2.n_pings)
         self.assertEqual(checks["Alice 2"]["pause_url"], a2_pause_url)
-        
-        
 
     def test_it_shows_only_users_checks(self):
         bobs_check = Check(user=self.bob, name="Bob 1")
@@ -75,7 +66,6 @@ class ListChecksTestCase(BaseTestCase):
         for check in data["checks"]:
             self.assertNotEqual(check["name"], "Bob 1")
 
-    ### Test that it accepts an api_key in the request
     def test_list_checks_accepts_key_in_the_request(self):
         data = json.dumps({"api_key":"abc"})
         url = "/api/v1/checks/"
