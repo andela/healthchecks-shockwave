@@ -17,7 +17,7 @@ class AddCheckTestCase(BaseTestCase):
         self.client.login(username="alice@example.org", password="password")
         post_a_check = self.client.post(url)
         self.assertRedirects(post_a_check, "/checks/")
-        assert Check.objects.count() == 1
+        self.assertEqual(Check.objects.count(), 1)
 
     def test_team_access(self):
         '''Test that team members can view all added checks, added by any
