@@ -58,3 +58,19 @@ class MyChecksTestCase(BaseTestCase):
 
         # Mobile
         self.assertContains(r, "label-warning")
+
+    def test_failed_checks_view(self):
+        self.check.last_ping = timezone.now()
+        self.check.status = "up"
+        self.check.save()
+
+        self.client.login(username="alice@example.org", password="password")
+        r = self.client.get("/checks/failed/")
+
+        # Desktop
+        self.assertNotContains(r, "icon-up")
+        self.assertNotContains(r, "icon-grace")
+
+        # Mobile
+        self.assertNotContains(r, "label-warning")
+        self.assertNotContains(r, "label-success")
