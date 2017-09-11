@@ -107,7 +107,9 @@ class Check(models.Model):
         """
         if self.status in ("new", "paused"):
             return False
-        return timezone.now() < self.alert_before
+        up_ends = self.last_ping + self.timeout
+        grace_begins = up_ends - self.grace
+        return timezone.now() < grace_begins
 
     def assign_all_channels(self):
         if self.user:
