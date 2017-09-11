@@ -24,11 +24,11 @@ class AddPushoverTestCase(BaseTestCase):
 
         params = "pushover_user_key=a&nonce=n&prio=0"
         get_request = self.client.get("/integrations/add_pushover/?%s" % params)
-        assert get_request.status_code == 302
+        self.assertEqual(get_request.status_code, 302)
 
         channels = list(Channel.objects.all())
-        assert len(channels) == 1
-        assert channels[0].value == "a|0"
+        self.assertEqual(len(channels), 1)
+        self.assertEqual(channels[0].value, "a|0")
 
     @override_settings(PUSHOVER_API_TOKEN=None)
     def test_it_requires_api_token(self):
@@ -51,7 +51,7 @@ class AddPushoverTestCase(BaseTestCase):
 
         params = "pushover_user_key=a&nonce=INVALID&prio=0"
         r_with_invalid_nonce = self.client.get("/integrations/add_pushover/?%s" % params)
-        assert r_with_invalid_nonce.status_code == 403
+        self.assertEqual(r_with_invalid_nonce.status_code, 403)
 
     def test_it_validates_priority(self):
         '''Test parameter priority is checked before adding a pushover.
@@ -72,7 +72,7 @@ class AddPushoverTestCase(BaseTestCase):
         invalid_prio_param_2 = "pushover_user_key=a&nonce=n&prio=3"
         r_with_invalid_prio = self.client.get("/integrations/add_pushover/?%s"
                                               % invalid_prio_param_1)
-        assert r_with_invalid_prio.status_code == 400
+        self.assertEqual(r_with_invalid_prio.status_code, 400)
         r_with_invalid_prio_2 = self.client.get("/integrations/add_pushover/?%s"
                                                 % invalid_prio_param_2)
         self.assertEqual(r_with_invalid_prio_2.status_code, 400)
