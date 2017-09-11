@@ -65,12 +65,12 @@ class MyChecksTestCase(BaseTestCase):
         self.check.save()
 
         self.client.login(username="alice@example.org", password="password")
-        r = self.client.get("/checks/failed/")
+        response = self.client.get("/checks/failed/")
 
         # Desktop
-        self.assertNotContains(r, "icon-up")
-        self.assertNotContains(r, "icon-grace")
+        self.assertNotContains(response, "icon-up")
+        self.assertNotContains(response, "icon-grace")
 
         # Mobile
-        self.assertNotContains(r, "label-warning")
-        self.assertNotContains(r, "label-success")
+        self.assertNotContains(response, "label-warning")
+        self.assertNotContains(response, "label-success")
