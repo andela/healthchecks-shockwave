@@ -21,10 +21,31 @@ def _pg(cursor):
     FOR EACH ROW EXECUTE PROCEDURE update_alert_after();
     """)
 
+    cursor.execute("""
+    CREATE OR REPLACE FUNCTION update_alert_before()
+    RETURNS trigger AS $update_alert_before$
+        BEGIN
+            IF NEW.last_ping IS NOT NULL THEN
+                NEW.alert_before := NEW.last_ping + NEW.timeout - NEW.grace;
+            END IF;
+            RETURN NEW;
+        END;
+    $update_alert_before$ LANGUAGE plpgsql;
+
+    DROP TRIGGER IF EXISTS update_alert_before ON api_check;
+
+    CREATE TRIGGER update_alert_before
+    BEFORE INSERT OR UPDATE OF last_ping, timeout, grace ON api_check
+    FOR EACH ROW EXECUTE PROCEDURE update_alert_before();
+    """)
+
 
 def _mysql(cursor):
     cursor.execute("""
     DROP TRIGGER IF EXISTS update_alert_after;
+    """)
+    cursor.execute("""
+    DROP TRIGGER IF EXISTS update_alert_before;
     """)
 
     cursor.execute("""
@@ -34,11 +55,20 @@ def _mysql(cursor):
         NEW.alert_after =
             NEW.last_ping + INTERVAL (NEW.timeout + NEW.grace) MICROSECOND;
     """)
-
+    cursor.execute("""
+    CREATE TRIGGER update_alert_before
+    BEFORE UPDATE ON api_check
+    FOR EACH ROW SET
+        NEW.alert_before =
+            NEW.last_ping + INTERVAL (NEW.timeout - NEW.grace) MICROSECOND;
+    """)
 
 def _sqlite(cursor):
     cursor.execute("""
     DROP TRIGGER IF EXISTS update_alert_after;
+    """)
+    cursor.execute("""
+    DROP TRIGGER IF EXISTS update_alert_before;
     """)
 
     cursor.execute("""
@@ -46,9 +76,21 @@ def _sqlite(cursor):
     AFTER UPDATE OF last_ping, timeout, grace ON api_check
     FOR EACH ROW BEGIN
         UPDATE api_check
-        SET alert_after =
+        SET alert_after=
             datetime(strftime('%s', last_ping) +
             timeout/1000000 + grace/1000000, 'unixepoch')
+        WHERE id = OLD.id;
+    END;
+    """)
+
+    cursor.execute("""
+    CREATE TRIGGER update_alert_before
+    AFTER UPDATE OF last_ping, timeout, grace ON api_check
+    FOR EACH ROW BEGIN
+        UPDATE api_check
+        SET alert_before =
+            datetime(strftime('%s', last_ping) +
+            timeout/1000000 - grace/1000000, 'unixepoch')
         WHERE id = OLD.id;
     END;
     """)

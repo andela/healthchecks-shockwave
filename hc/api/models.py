@@ -51,6 +51,7 @@ class Check(models.Model):
     n_pings = models.IntegerField(default=0)
     last_ping = models.DateTimeField(null=True, blank=True)
     alert_after = models.DateTimeField(null=True, blank=True, editable=False)
+    alert_before = models.DateTimeField(null=True, blank=True, editable=False)
     status = models.CharField(max_length=6, choices=STATUSES, default="new")
 
     def name_then_code(self):
@@ -98,6 +99,15 @@ class Check(models.Model):
         up_ends = self.last_ping + self.timeout
         grace_ends = up_ends + self.grace
         return up_ends < timezone.now() < grace_ends
+
+    def before_reverse_grace_period(self):
+        """
+        Method that checks that a ping sent in reverse grace period
+        returns true
+        """
+        if self.status in ("new", "paused"):
+            return False
+        return timezone.now() < self.alert_before
 
     def assign_all_channels(self):
         if self.user:
