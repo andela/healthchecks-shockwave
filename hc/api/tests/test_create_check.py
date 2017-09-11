@@ -32,7 +32,7 @@ class CreateCheckTestCase(BaseTestCase):
         self.assertEqual(r.status_code, 201)
 
         doc = r.json()
-        assert "ping_url" in doc
+        self.assertIn("ping_url", doc)
         self.assertEqual(doc["name"], "Foo")
         self.assertEqual(doc["tags"], "bar,baz")
 
@@ -66,20 +66,20 @@ class CreateCheckTestCase(BaseTestCase):
     def test_it_rejects_wrong_api_key(self):
         resp = self.post({"api_key": "wrong"},
                   expected_error="wrong api_key")
-        assert resp.status_code == 400
-        assert resp.json()["error"] == "wrong api_key"
+        self.assertEqual(resp.status_code, 400)
+        self.assertEqual(resp.json()["error"], "wrong api_key")
 
     def test_it_rejects_non_number_timeout(self):
         resp = self.post({"api_key": "abc", "timeout": "oops"},
                   expected_error="timeout is not a number")
-        assert resp.status_code == 400   
-        assert resp.json()["error"] == "timeout is not a number"    
+        self.assertEqual(resp.status_code, 400)
+        self.assertEqual(resp.json()["error"],"timeout is not a number") 
 
     def test_it_rejects_non_string_name(self):
         resp = self.post({"api_key": "abc", "name": False},
                   expected_error="name is not a string")
-        assert resp.status_code == 400
-        assert resp.json()["error"] == "name is not a string"
+        self.assertEqual(resp.status_code, 400)
+        self.assertEqual(resp.json()["error"], "name is not a string")
 
 
     def test_for_assignment_of_channels(self):
@@ -90,7 +90,7 @@ class CreateCheckTestCase(BaseTestCase):
         self.assertEqual(resp.status_code, 201)
         check = Check.objects.get()
 
-        assert check.channel_set.get() == channel
+        self.assertEqual(check.channel_set.get(), channel)
 
     def test_timeout_is_too_small(self):
         resp = self.post({
@@ -100,7 +100,7 @@ class CreateCheckTestCase(BaseTestCase):
             "timeout": 1,
             "grace": 60
         })
-        assert resp.json()["error"] == "timeout is too small"
+        self.assertEqual(resp.json()["error"], "timeout is too small")
 
     def test_timeout_is_too_large(self):
         resp = self.post({
@@ -110,4 +110,4 @@ class CreateCheckTestCase(BaseTestCase):
             "timeout": 100000101010100100101,
             "grace": 60
         })
-        assert resp.json()["error"] == "timeout is too large"
+        self.assertEqual(resp.json()["error"], "timeout is too large")

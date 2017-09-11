@@ -10,6 +10,7 @@ class ListChecksTestCase(BaseTestCase):
 
     def setUp(self):
         super(ListChecksTestCase, self).setUp()
+        self.url = "http://localhost:8000/api/v1/checks/"
 
         self.now = now().replace(microsecond=0)
 
@@ -37,8 +38,8 @@ class ListChecksTestCase(BaseTestCase):
         self.assertTrue("checks" in doc)
 
         checks = {check["name"]: check for check in doc["checks"]}
-        assert len(checks) == 2
-        a1_pause_url = "http://localhost:8000/api/v1/checks/"+str(self.a1.code)+"/pause"
+        self.assertEqual(len(checks), 2)
+        a1_pause_url = self.url +str(self.a1.code)+"/pause"
         self.assertEqual(checks["Alice 1"]["timeout"], self.a1.timeout.total_seconds())
         self.assertEqual(checks["Alice 1"]["grace"], self.a1.grace.total_seconds())
         self.assertEqual(checks["Alice 1"]["ping_url"], self.a1.url())
@@ -47,7 +48,7 @@ class ListChecksTestCase(BaseTestCase):
         self.assertEqual(checks["Alice 1"]["n_pings"], self.a1.n_pings)
         self.assertEqual(checks["Alice 1"]["pause_url"], a1_pause_url)
 
-        a2_pause_url = "http://localhost:8000/api/v1/checks/"+str(self.a2.code)+"/pause"
+        a2_pause_url = self.url +str(self.a2.code)+"/pause"
         self.assertEqual(checks["Alice 2"]["timeout"], self.a2.timeout.total_seconds())
         self.assertEqual(checks["Alice 2"]["grace"], self.a2.grace.total_seconds())
         self.assertEqual(checks["Alice 2"]["ping_url"], self.a2.url())

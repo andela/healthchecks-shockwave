@@ -11,7 +11,7 @@ class PauseTestCase(BaseTestCase):
         url = "/api/v1/checks/%s/pause" % check.code
         r = self.client.post(url, "", content_type="application/json",
                              HTTP_X_API_KEY="abc")
-        assert r.status_code == 200
+        self.assertEqual(r.status_code, 200)
 
     def test_it_validates_ownership(self):
         check = Check(user=self.bob, status="up")
@@ -31,7 +31,7 @@ class PauseTestCase(BaseTestCase):
         resp = self.client.get(url, "", content_type="application/json",
                              HTTP_X_API_KEY="abc")
 
-        assert resp.status_code == 405
+        self.assertEqual(resp.status_code, 405)
 
     def test_it_validates_uuid(self):
         url = "/api/v1/checks/07c2f548-9850-4b27-af5d-6c9dc157ec03/pause"
