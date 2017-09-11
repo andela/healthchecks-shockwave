@@ -64,16 +64,16 @@ in development environment.
 
         $ ./manage.py runserver
 
-The site should now be running at `http://localhost:8080`
+The site should now be running at `http://localhost:8000`
 To log into Django administration site as a super user,
-visit `http://localhost:8080/admin`
+visit `http://localhost:8000/admin`
 
 ## Database Configuration
 
 Database configuration is stored in `hc/settings.py` and can be overriden
-in `hc/local_settings.py`. The default database engine is SQLite. To use
+in `hc/local_settings.py`. *The default database engine is SQLite. To use
 PostgreSQL, create `hc/local_settings.py` if it does not exist, and put the
-following in it, changing it as neccessary:
+following in it, changing it as neccessary:*
 
     DATABASES = {
         'default': {
@@ -136,13 +136,16 @@ and the email configuration in `hc/local_settings.py` looks as follows:
 
 healtchecks comes with a `sendalerts` management command, which continuously
 polls database for any checks changing state, and sends out notifications as
-needed. Within an activated virtualenv, you can manually run
+needed. Open a new terminal window and within an activated virtualenv, you can then manually run
 the `sendalerts` command like so:
 
     $ ./manage.py sendalerts
 
 In a production setup, you will want to run this command from a process
 manager like [supervisor](http://supervisord.org/) or systemd.
+
+* Verify emails via the admin panel in order to send email notifications via
+the terminal
 
 ## Database Cleanup
 
@@ -187,6 +190,17 @@ When you first try these commands on your data, it is a good idea to
 test them on a copy of your database, not on the live database right away.
 In a production setup, you should also have regular, automated database
 backups set up.
+
+## Testing
+* In order to execute tests, run:
+    ```
+    $ ./manage.py test
+    ```
+To get information on the test coverage, Run:
+    ```
+    $ coverage run --source hc manage.py test
+    $ coverage report
+    ```
 
 ## Integrations
 
