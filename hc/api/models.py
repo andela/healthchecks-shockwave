@@ -100,6 +100,15 @@ class Check(models.Model):
         grace_ends = up_ends + self.grace
         return up_ends < timezone.now() < grace_ends
 
+    def before_reverse_grace_period(self):
+        """
+        Method that checks that a ping sent in reverse grace period
+        returns true
+        """
+        if self.status in ("new", "paused"):
+            return False
+        return timezone.now() < self.alert_before
+
     def assign_all_channels(self):
         if self.user:
             channels = Channel.objects.filter(user=self.user)
