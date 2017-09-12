@@ -17,6 +17,7 @@ from hc.api.decorators import uuid_or_400
 from hc.api.models import DEFAULT_GRACE, DEFAULT_TIMEOUT, Channel, Check, Ping
 from hc.front.forms import (AddChannelForm, AddWebhookForm, NameTagsForm,
                             TimeoutForm)
+from hc.lib.sms import TwilioSendSms
 
 
 # from itertools recipes:
@@ -295,6 +296,11 @@ def do_add_channel(request, data):
     form = AddChannelForm(data)
     if form.is_valid():
         channel = form.save(commit=False)
+        if channel.kind == "sms":
+            if not TwilioSendSms().check_number(data["value"]):
+                number_entered = data["value"]
+                error_message = "The number %s is not a valid number." % number_entered
+                return render(request, "integrations/add_sms.html", {'error_message':error_message})
         channel.user = request.team.user
         channel.save()
 
