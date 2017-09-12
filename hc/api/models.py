@@ -183,6 +183,8 @@ class Channel(models.Model):
             return transports.Pushbullet(self)
         elif self.kind == "po":
             return transports.Pushover(self)
+        elif self.kind == "sms":
+            return transports.SMS(self)
         else:
             raise NotImplementedError("Unknown channel kind: %s" % self.kind)
 
