@@ -31,12 +31,10 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites',
     'compressor',
     'djmail',
     'taggit',
     'django_summernote',
-    'django_comments',
 
     'hc.accounts',
     'hc.api',
