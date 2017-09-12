@@ -49,24 +49,35 @@ class CheckModelTestCase(TestCase):
         check.last_ping = timezone.now() - timedelta(hours=23, minutes=1)
         self.assertEqual(check.get_status(), "up")
 
-    def test_check_before_reverse_grace_period(self):
+    def test_ping_often_returns_status_often(self):
         """
-        Test to check that if a ping is sent with in the reverse grace period
-        the  method before_reverse_grace_period returns true
+        Test to check that if a ping is sent with in before the reverse grace period
+        the  method ping_often returns status often and sends an alert
         """
         check = Check()
 
         check.status = "up"
         check.last_ping = timezone.now() - timedelta(hours=22, minutes=30)
-        self.assertTrue(check.before_reverse_grace_period())
+        check.save()
+        self.assertEqual(check.ping_often(), "often")
 
-    def test_check_in_return_grace_period_returns_false(self):
+    def test_ping_often_returns_status_up(self):
         """
         Test that a ping sent with in and after reverse grace period would return
-        false
+        up
         """
         check = Check()
-        check.status = "up"
+        check.status = "often"
 
         check.last_ping = timezone.now() - timedelta(hours=23, minutes=30)
-        self.assertFalse(check.before_reverse_grace_period())
+        self.assertEqual(check.ping_often(), "up")
+
+    def test_ping_often_returns_original_status(self):
+        """
+        Test to check that if a ping is sent with status new or paused then that same status
+        is returned
+        """
+        check = Check()
+        check.status = "new"
+
+        self.assertEqual(check.ping_often(), "new")
