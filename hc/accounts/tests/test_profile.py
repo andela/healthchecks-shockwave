@@ -46,7 +46,7 @@ class ProfileTestCase(BaseTestCase):
 
         form = {"invite_team_member": "1", "email": "frank@example.org"}
         response = self.client.post("/accounts/profile/", form)
-        assert response.status_code == 200
+        self.assertEqual(response.status_code, 200)
 
         member_emails = set()
         for member in self.alice.profile.member_set.all():
@@ -69,7 +69,7 @@ class ProfileTestCase(BaseTestCase):
 
         form = {"invite_team_member": "1", "email": "frank@example.org"}
         response = self.client.post("/accounts/profile/", form)
-        assert response.status_code == 403
+        self.assertEqual(response.status_code, 403)
 
     def test_it_removes_team_member(self):
         """remove a member from a team, and assert s/he is no longer a member"""
@@ -91,7 +91,7 @@ class ProfileTestCase(BaseTestCase):
 
         form = {"set_team_name": "1", "team_name": "Alpha Team"}
         response = self.client.post("/accounts/profile/", form)
-        assert response.status_code == 200
+        self.assertEqual(response.status_code, 200)
 
         self.alice.profile.refresh_from_db()
         self.assertEqual(self.alice.profile.team_name, "Alpha Team")
@@ -100,7 +100,7 @@ class ProfileTestCase(BaseTestCase):
         self.client.login(username="charlie@example.org", password="password")
         form = {"set_team_name": "1", "team_name": "Charlies Team"}
         response = self.client.post("/accounts/profile/", form)
-        assert response.status_code == 403
+        self.assertEqual(response.status_code, 403)
 
     def test_it_switches_to_own_team(self):
         self.client.login(username="bob@example.org", password="password")

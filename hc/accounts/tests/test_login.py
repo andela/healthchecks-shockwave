@@ -18,7 +18,7 @@ class LoginTestCase(TestCase):
         form = {"email": "alice@example.org"}
 
         response = self.client.post("/accounts/login/", form)
-        assert response.status_code == 302
+        self.assertEqual(response.status_code, 302)
 
         ### Assert that a user was created
         user = User.objects.filter(email="alice@example.org").first()
