@@ -151,6 +151,11 @@ PUSHOVER_EMERGENCY_EXPIRATION = 86400
 PUSHBULLET_CLIENT_ID = None
 PUSHBULLET_CLIENT_SECRET = None
 
+#Twilio integration -- override those in local_settings
+TWILIO_ACCOUNT_SID = None
+TWILIO_AUTH_TOKEN = None
+TWILIO_NUMBER = None
+
 if os.path.exists(os.path.join(BASE_DIR, "hc/local_settings.py")):
     from .local_settings import *
 else:
