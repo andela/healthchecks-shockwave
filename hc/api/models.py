@@ -55,6 +55,7 @@ class Check(models.Model):
     status = models.CharField(max_length=6, choices=STATUSES, default="new")
     nag_time = models.DurationField(default=DEFAULT_NAG_TIME)
     nag_mode = models.BooleanField(default=True)
+    next_nag = models.DateTimeField(null=True, blank=True)
 
     def name_then_code(self):
         if self.name:
@@ -121,6 +122,7 @@ class Check(models.Model):
             "timeout": int(self.timeout.total_seconds()),
             "grace": int(self.grace.total_seconds()),
             "nag_time": int(self.nag_time.total_seconds()),
+            "nag_mode": self.nag_mode,
             "n_pings": self.n_pings,
             "status": self.get_status()
         }
