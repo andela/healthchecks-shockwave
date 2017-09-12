@@ -319,6 +319,13 @@ def add_channel(request):
     assert request.method == "POST"
     return do_add_channel(request, request.POST)
 
+@login_required
+def add_sms(request):
+    '''
+    A method that renders a page for adding sms when called aupin
+    '''
+    return render(request, "integrations/add_sms.html", {'error_message':""})
+
 
 @login_required
 @uuid_or_400
