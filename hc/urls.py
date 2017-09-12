@@ -6,5 +6,7 @@ urlpatterns = [
     url(r'^accounts/', include('hc.accounts.urls')),
     url(r'^', include('hc.api.urls')),
     url(r'^', include('hc.front.urls')),
-    url(r'^', include('hc.payments.urls'))
+    url(r'^', include('hc.payments.urls')),
+    url(r'^blogs/', include('hc.blogs.urls')),
+    url(r'^summernote/', include('django_summernote.urls')),
 ]
