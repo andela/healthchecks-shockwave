@@ -22,6 +22,8 @@ def ping(request, code):
         return HttpResponseBadRequest()
 
     check.n_pings = F("n_pings") + 1
+    
+    check.status = check.ping_often()
     check.last_ping = timezone.now()
     if check.status in ("new", "paused"):
         check.status = "up"
@@ -39,9 +41,6 @@ def ping(request, code):
     # If User-Agent is longer than 200 characters, truncate it:
     ping.ua = headers.get("HTTP_USER_AGENT", "")[:200]
     ping.save()
-
-    if check.before_reverse_grace_period():
-        check.send_alert()
 
     response = HttpResponse("OK")
     response["Access-Control-Allow-Origin"] = "*"
