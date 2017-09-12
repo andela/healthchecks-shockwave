@@ -39,7 +39,7 @@ class LoginTestCase(TestCase):
         removes it """
         self.client.session["bad_link"] = True
         self.client.get("/accounts/login/")
-        assert "bad_link" not in self.client.session
+        self.assertNotIn("bad_link", self.client.session)
 
     def test_renders_login_page(self):
         """ Tests that the login page is returned on a get request """

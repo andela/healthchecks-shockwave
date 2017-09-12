@@ -12,7 +12,7 @@ class ProfileTestCase(BaseTestCase):
 
         form = {"set_password": "1"}
         response = self.client.post("/accounts/profile/", form)
-        assert response.status_code == 302
+        self.assertEqual(response.status_code, 302)
 
         # profile.token should be set now
         self.alice.profile.refresh_from_db()
@@ -77,7 +77,7 @@ class ProfileTestCase(BaseTestCase):
 
         form = {"remove_team_member": "1", "email": "bob@example.org"}
         response = self.client.post("/accounts/profile/", form)
-        assert response.status_code == 200
+        self.assertEqual(response.status_code, 200)
 
         self.assertEqual(Member.objects.count(), 0)
 
