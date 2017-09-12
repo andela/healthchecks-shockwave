@@ -29,8 +29,8 @@ def pairwise(iterable):
 
 @login_required
 def my_checks(request):
-    q = Check.objects.filter(user=request.team.user).order_by("created")
-    checks = list(q)
+    mychecks = Check.objects.filter(user=request.team.user).order_by("created")
+    checks = list(mychecks)
 
     counter = Counter()
     down_tags, grace_tags = set(), set()
@@ -62,8 +62,8 @@ def my_checks(request):
 
 @login_required
 def my_failed_checks(request):
-    q = Check.objects.filter(user=request.team.user).order_by("created")
-    checks = list(q)
+    mychecks = Check.objects.filter(user=request.team.user).order_by("created")
+    checks = list(mychecks)
 
     counter = Counter()
     failed_checks = []
