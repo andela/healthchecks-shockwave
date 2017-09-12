@@ -4,7 +4,7 @@ from django.utils import timezone
 import json
 import requests
 from six.moves.urllib.parse import quote
-
+from hc.lib.sms import TwilioSendSms
 from hc.lib import emails
 
 
@@ -216,3 +216,18 @@ class VictorOps(HttpTransport):
         }
 
         return self.post(self.channel.value, payload)
+
+class SMS(HttpTransport):
+    '''
+    A class that sends and SMS
+    Key word argument:
+    check -- A check from the users checks is passed
+    '''
+    def notify(self, check):
+        '''
+        A method that calls an instance of TwilioSendSms and its method for sending
+        messages. Arguments passed are, a number with a plus string before it and a
+        description variable derived from html file.
+        '''
+        description = tmpl("sms_description.html", check=check)
+        TwilioSendSms().send("+" + self.channel.value, description)
