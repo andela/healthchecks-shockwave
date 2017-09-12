@@ -41,12 +41,8 @@ def _pg(cursor):
 
 
 def _mysql(cursor):
-    cursor.execute("""
-    DROP TRIGGER IF EXISTS update_alert_after;
-    """)
-    cursor.execute("""
-    DROP TRIGGER IF EXISTS update_alert_before;
-    """)
+    drop_alert(cursor, "update_alert_after")
+    drop_alert(cursor, "update_alert_before")
 
     cursor.execute("""
     CREATE TRIGGER update_alert_after
@@ -64,12 +60,8 @@ def _mysql(cursor):
     """)
 
 def _sqlite(cursor):
-    cursor.execute("""
-    DROP TRIGGER IF EXISTS update_alert_after;
-    """)
-    cursor.execute("""
-    DROP TRIGGER IF EXISTS update_alert_before;
-    """)
+    drop_alert(cursor, "update_alert_after")
+    drop_alert(cursor, "update_alert_before")
 
     cursor.execute("""
     CREATE TRIGGER update_alert_after
@@ -94,6 +86,15 @@ def _sqlite(cursor):
         WHERE id = OLD.id;
     END;
     """)
+
+def drop_alert(cursor, value):
+    """
+    Calls the method for dropping a trigger in the database
+    """
+    cursor.execute("""
+    DROP TRIGGER IF EXISTS {};
+    """.format(value))
+
 
 
 class Command(BaseCommand):

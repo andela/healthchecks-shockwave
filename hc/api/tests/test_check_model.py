@@ -50,8 +50,8 @@ class CheckModelTestCase(TestCase):
 
     def test_check_in_return_grace_period_returns_false(self):
         """
-        Test that if check is pinged in the time allocation of reverse grace period
-        the method before_reverse_grace_period returns false
+        Test that a ping sent with in and after reverse grace period would return
+        false
         """
         check = Check()
         check.status = "up"
