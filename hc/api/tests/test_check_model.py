@@ -3,6 +3,7 @@ from datetime import timedelta
 from django.test import TestCase
 from django.utils import timezone
 from hc.api.models import Check
+from mock import patch
 
 
 class CheckModelTestCase(TestCase):
@@ -36,6 +37,17 @@ class CheckModelTestCase(TestCase):
         self.assertFalse(check.in_grace_period())
 
     ### Test that when a new check is created, it is not in the grace period
+
+    def test_update_status_often_to_up(self):
+        """
+        Test that get_status updates status often to up when duration since the last
+        ping exceeds the time set at reverse grace period
+        """
+        check = Check()
+
+        check.status = "often"
+        check.last_ping = timezone.now() - timedelta(hours=23, minutes=1)
+        self.assertEqual(check.get_status(), "up")
 
     def test_check_before_reverse_grace_period(self):
         """
