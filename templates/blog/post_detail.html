@@ -1,0 +1,27 @@
+{% extends "base.html" %} 
+{% block content %}
+
+{% if post.published_date %}
+	{% endif %} {% if user.is_authenticated %}
+	<div style="text-align:  right">
+    <a class="top-menu" href="{% url  'hc-blog-edit' pk=post.pk %}"><span>Edit Post</span></a> 
+    <a class="top-menu" href="{% url  'hc-blog-delete' pk=post.pk %}"><span>Delete Post</span></a>
+    </div> 
+    {% endif %}
+    
+    <h1><b>{{ post.title }}</b></h1>
+    <div class="date"> Published On: 
+        {{ post.published_date }}
+    </div>
+    <div > Author: 
+        {{ post.author}}
+    </div>
+    <div class="date"> Category: 
+    {% for tag in tags %}
+        {{ tag |safe }} 
+    {% endfor %}
+    </div>
+    <p>{{ post.text| safe |linebreaksbr }}</p>
+</div>
+
+{% endblock %}
