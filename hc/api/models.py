@@ -104,7 +104,7 @@ class Check(models.Model):
         grace_ends = up_ends + self.grace
         return up_ends < timezone.now() < grace_ends
 
-    def before_reverse_grace_period(self):
+    def __before_reverse_grace_period(self):
         """
         Method that checks that a ping sent in reverse grace period
         returns true
@@ -145,6 +145,17 @@ class Check(models.Model):
             result["next_ping"] = None
 
         return result
+
+    def ping_often(self):
+        """
+        Checks if ping is occuring often and sends out an alert if it is
+        """
+        if self.__before_reverse_grace_period():
+            self.send_alert()
+            return "often"
+        if self.status == "often":
+            return "up"
+        return self.status
 
 
 class Ping(models.Model):
