@@ -56,3 +56,19 @@ class TwilioSendSms():
             raise MiddlewareNotUsed
 
         return (settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN, settings.TWILIO_NUMBER)
+
+    def check_number(self, phone_number):
+        '''A method that checks if a number entered on a form is valid.
+        Key word argument:
+        phone_number -- The number of the user
+        Exception Raised:
+        TwilioRestException -- Raises an error code 20404 if the number entered is not valid.
+        '''
+        try:
+            self.twilio_client.lookups.phone_numbers(phone_number).fetch()
+            return True
+        except TwilioRestException as etwilio:
+            if etwilio.code == 20404:
+                return False
+            else:
+                raise etwilio
