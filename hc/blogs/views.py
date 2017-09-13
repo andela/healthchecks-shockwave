@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.views.generic import ListView
 from django.core.paginator import Paginator
 from .models import Post
 from .forms import PostForm
@@ -32,7 +33,7 @@ def post_new(request):
 
 def post_edit(request, pk):
 	post = get_object_or_404(Post, pk=pk)
-	if request.method == "POST" and post.author == reques.user:		
+	if request.method == "POST" and post.author == request.user:		
 		form = PostForm(request.POST, instance=post)
 		if form.is_valid():
 			post = form.save(commit=False)
