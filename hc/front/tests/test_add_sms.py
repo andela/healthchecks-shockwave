@@ -20,4 +20,16 @@ class AddSmsTestCase(BaseTestCase):
         self.assertEqual(Channel.objects.count(), 1)
         get_integration_page = self.client.get("/integrations/")
         self.assertContains(get_integration_page, "254722000000")
-        
+
+    def test_number_check(self):
+        '''A method that tests that passing invalid data to the form for the sms
+        will not lead to creation of a channel. Arguments to be rejected are
+        strings -- the form should accept only numbers.
+        '''
+        url = "/integrations/add/"
+        form_list = [{"kind": "sms", "value": "uiouio"}, {"kind": "sms", "value": "1234"}]
+        self.login_user()
+        for form in form_list:
+            post_sms_number = self.client.post(url, form)
+            self.assertNotEqual(post_sms_number.status_code, 302)
+            self.assertEqual(Channel.objects.count(), 0)
