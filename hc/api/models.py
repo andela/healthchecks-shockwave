@@ -103,6 +103,15 @@ class Check(models.Model):
         grace_ends = up_ends + self.grace
         return up_ends < timezone.now() < grace_ends
 
+    def in_nag_period(self):
+        if self.status in ("new", "paused"):
+            return False
+        if not self.nag_mode:
+            return False
+        up_ends = self.last_ping + self.timeout
+        grace_ends = up_ends + self.grace
+        return timezone.now() > grace_ends
+
     def assign_all_channels(self):
         if self.user:
             channels = Channel.objects.filter(user=self.user)
