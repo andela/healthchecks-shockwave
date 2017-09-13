@@ -172,8 +172,22 @@ def profile(request):
                 except User.DoesNotExist:
                     user = _make_user(email)
 
-                profile.invite(user)
+                q = Check.objects.filter(user=request.team.user).order_by("created")
+                checks = list(q)
+                holder = Check.objects.filter(user=request.team.user).order_by("created")
+                user_checks = list(holder)
+                checks_assigned = ""
+                for key in request.POST:
+                    if key.startswith("check-"):
+                        checks_code = key[6:]
+                        try:
+                            checks_assigned = (checks_assigned + checks_code + " ")
+                        except Exception:
+                            checks_assigned = (checks_assigned + "None" + " ")
+
+                profile.invite(user, checks_assigned)
                 messages.success(request, "Invitation to %s sent!" % email)
+
         elif "remove_team_member" in request.POST:
             form = RemoveTeamMemberForm(request.POST)
             if form.is_valid():
@@ -213,7 +227,9 @@ def profile(request):
         "page": "profile",
         "badge_urls": badge_urls,
         "profile": profile,
-        "show_api_key": show_api_key
+        "show_api_key": show_api_key,
+        "checks": checks,
+        "user_checks": user_checks
     }
 
     return render(request, "accounts/profile.html", ctx)
