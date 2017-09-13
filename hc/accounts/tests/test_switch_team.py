@@ -1,6 +1,7 @@
 from hc.test import BaseTestCase
 from hc.api.models import Check
-
+from django.contrib.auth.models import User
+from hc.accounts.models import Profile
 
 class SwitchTeamTestCase(BaseTestCase):
 
@@ -25,6 +26,29 @@ class SwitchTeamTestCase(BaseTestCase):
         """test switching to own team, and assert it redirects accordingly"""
         self.client.login(username="alice@example.org", password="password")
         url = "/accounts/switch_team/%s/" % self.alice.username
-        response = self.client.get(url, follow=True)
-        self.assertEqual(200, response.status_code)
-        
+        r = self.client.get(url, follow=True)
+        ### Assert the expected error code
+
+    def test_it_views_assigned_checks_only(self):
+        self.tony = User(username="tony", email="tony@yes.com")
+        self.tony.set_password("1111")
+        self.tony.save()
+        self.profile = Profile(user=self.tony)
+        self.profile.save()
+        self.client.login(username="alice@example.org", password="password")
+        url = "/checks/add/"
+        url2 = "/checks/"
+        r = self.client.post(url)
+        check = Check.objects.get(status="new")
+        check_ping = str(check.code)
+        check_ping2 = "aaaaaaa" + check_ping
+
+        r = self.client.post("/accounts/profile/",
+                             data={"invite_team_member": "1",
+                                   "email": "tony@yes.com",
+                                   "check-1": check_ping2})
+        self.assertContains(r, "Invitation to tony@yes.com sent")
+        self.client.logout()
+        self.client.login(username="tony@yes.com", password="1111")
+        def_page = self.client.get(url2)
+        self.assertContains(def_page, "alice@example.org")
