@@ -71,8 +71,8 @@ class Profile(models.Model):
 
         emails.report(self.user.email, ctx)
 
-    def invite(self, user):
-        member = Member(team=self, user=user)
+    def invite(self, user, checks_assigned):
+        member = Member(team=self, user=user, checks_assigned=checks_assigned)
         member.save()
 
         # Switch the invited user over to the new team so they
@@ -86,3 +86,4 @@ class Profile(models.Model):
 class Member(models.Model):
     team = models.ForeignKey(Profile)
     user = models.ForeignKey(User)
+    checks_assigned = models.TextField(blank=True)
