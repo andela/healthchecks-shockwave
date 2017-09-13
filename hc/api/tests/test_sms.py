@@ -20,4 +20,13 @@ class TestTilioSendSms(BaseTestCase):
         invalid_numbers = ["+2547182174", "+141570311", "+270863000"]
         for number in invalid_numbers:
             self.assertEqual(TwilioSendSms().check_number(number), False)
+
+    @override_settings(TWILIO_ACCOUNT_SID=None, TWILIO_AUTH_TOKEN=None,
+                       TWILIO_NUMBER=None)
+    def test_config_loading(self):
+        '''A method that returns authentication information for a twilio client
+        and tests that an error is raised when the environmental variables are not set
+        '''
+        with self.assertRaises(MiddlewareNotUsed):
+            TwilioSendSms().load_config()
             
