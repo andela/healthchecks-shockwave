@@ -17,9 +17,7 @@ from hc.api.decorators import uuid_or_400
 from hc.api.models import DEFAULT_GRACE, DEFAULT_TIMEOUT, Channel, Check, Ping
 from hc.front.forms import (AddChannelForm, AddWebhookForm, NameTagsForm,
                             TimeoutForm)
-from hc.lib.sms import TwilioSendSms
-
-
+from hc.accounts.models import Profile, Member
 
 # from itertools recipes:
 def pairwise(iterable):
@@ -34,9 +32,24 @@ def my_checks(request):
     mychecks = Check.objects.filter(user=request.team.user).order_by("created")
     checks = list(mychecks)
 
+    team_owner = Profile.objects.get(user=request.team.user)
+    checks_buffer = []
+
+    if request.team.user == request.user:
+        checks_buffer = checks
+    else:
+        team_info = Member.objects.get(team=team_owner)
+        checks_assigned = str(team_info.checks_assigned)
+        checks_assigned = checks_assigned.split(" ")
+        for scheck in checks:
+            for check_assigned in checks_assigned:
+                str_scheck = str(scheck.code)
+                if str_scheck == check_assigned:
+                    checks_buffer.append(scheck)
+
     counter = Counter()
     down_tags, grace_tags = set(), set()
-    for check in checks:
+    for check in checks_buffer:
         status = check.get_status()
         for tag in check.tags_list():
             if tag == "":
@@ -51,7 +64,7 @@ def my_checks(request):
 
     ctx = {
         "page": "checks",
-        "checks": checks,
+        "checks": checks_buffer,
         "now": timezone.now(),
         "tags": counter.most_common(),
         "down_tags": down_tags,
@@ -167,6 +180,14 @@ def add_check(request):
     check = Check(user=request.team.user)
     check.save()
 
+    team_owner = Profile.objects.get(user=request.team.user)
+    if request.team.user.email != request.user.email:
+        team_info = Member.objects.get(team=team_owner, user=request.user)
+        checks_assigned = str(team_info.checks_assigned)
+        str_check = str(check.code)
+        team_info.checks_assigned = (checks_assigned + str_check + " ")
+        team_info.save()
+
     check.assign_all_channels()
 
     return redirect("hc-checks")
@@ -233,6 +254,19 @@ def remove_check(request, code):
         return HttpResponseForbidden()
 
     check.delete()
+
+    checks_buffer = ""
+    team_owner = Profile.objects.get(user=request.team.user)
+    team_info = list(Member.objects.filter(team=team_owner))
+    for info in team_info:
+        checks_assigned = str(info.checks_assigned)
+        if checks_assigned != "":
+            checks_assigned = checks_assigned.split(" ")
+            for check_assigned in checks_assigned:
+                if check_assigned != check.code:
+                    checks_buffer = checks_buffer + check_assigned + " "
+            info.checks_assigned = checks_buffer
+            info.save()
 
     return redirect("hc-checks")
 
@@ -318,14 +352,40 @@ def channels(request):
     channels = Channel.objects.filter(user=request.team.user).order_by("created")
     channels = channels.annotate(n_checks=Count("checks"))
 
-    num_checks = Check.objects.filter(user=request.team.user).count()
+    
+    q = Check.objects.filter(user=request.team.user).order_by("created")
+    checks = list(q)
+    team_owner = Profile.objects.get(user=request.team.user)
+    checks_buffer = []
+
+    check_count = 0
+    if request.team.user == request.user:
+        checks_buffer = checks
+    else:
+        team_info = Member.objects.get(team=team_owner)
+        checks_assigned = str(team_info.checks_assigned)
+        checks_assigned = checks_assigned.split(" ")
+        for scheck in checks:
+            for check_assigned in checks_assigned:
+                str_scheck = str(scheck.code)
+                if str_scheck == check_assigned:
+                    checks_buffer.append(scheck)
+
+        for c in channels:
+            assigned = set(c.checks.values_list('code', flat=True).distinct())
+            for check_assigned in checks_assigned:
+                if check_assigned in assigned:
+                    check_count = check_count + 1
+
+    num_checks = len(checks_buffer)
 
     ctx = {
         "page": "channels",
         "channels": channels,
         "num_checks": num_checks,
         "enable_pushbullet": settings.PUSHBULLET_CLIENT_ID is not None,
-        "enable_pushover": settings.PUSHOVER_API_TOKEN is not None
+        "enable_pushover": settings.PUSHOVER_API_TOKEN is not None,
+        "check_count": check_count
     }
     return render(request, "front/channels.html", ctx)
 
@@ -399,8 +459,22 @@ def channel_checks(request, code):
     assigned = set(channel.checks.values_list('code', flat=True).distinct())
     checks = Check.objects.filter(user=request.team.user).order_by("created")
 
+    team_owner = Profile.objects.get(user=request.team.user)
+    checks_buffer = []
+
+    if request.team.user == request.user:
+        checks_buffer = checks
+    else:
+        team_info = Member.objects.get(team=team_owner)
+        checks_assigned = str(team_info.checks_assigned)
+        checks_assigned = checks_assigned.split(" ")
+        for scheck in checks:
+            for check_assigned in checks_assigned:
+                str_scheck = str(scheck.code)
+                if str_scheck == check_assigned:
+                    checks_buffer.append(scheck)
     ctx = {
-        "checks": checks,
+        "checks": checks_buffer,
         "assigned": assigned,
         "channel": channel
     }
