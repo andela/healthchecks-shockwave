@@ -89,6 +89,19 @@ class NotifyTestCase(BaseTestCase):
             "get", "http://bar", headers={"User-Agent": "healthchecks.io"},
             timeout=5)
 
+    def test_sms(self):
+        '''Test that a notification for sms is created. The test sets
+        up an SMS channel to be integrated to a check. It calls the notify
+        method for the channel that should create a notification object
+        with an error attribut of null. The number +254718217411 can be changed
+        to the phone number of the tester for verified numbers on his twilio
+        account.
+        '''
+        self._setup_data("sms", "+254718217411")
+        self.channel.notify(self.check)
+        self.assertEqual(Notification.objects.count(), 1)
+        self.assertEqual(Notification.objects.get().error, "")
+
     def test_email(self):
         self._setup_data("email", "alice@example.org")
         self.channel.notify(self.check)
