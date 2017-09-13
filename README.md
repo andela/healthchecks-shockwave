@@ -196,9 +196,13 @@ backups set up.
     ```
     $ ./manage.py test
     ```
-To get information on the test coverage, Run:
+To get information on the test coverage:
+* Run the tests with coverage
     ```
     $ coverage run --source hc manage.py test
+    ```
+* Get the report for the tests
+    ```
     $ coverage report
     ```
 
@@ -217,4 +221,4 @@ To enable Pushover integration, you will need to:
 ## Contributions
 
 You have made it this far and you would love to contribute.
-Visit [https://docs.google.com/a/andela.com/document/d/1KIDJUDRgGQrDd-irwK_xjllIOCOvUjITJ1LmErv4kZg/edit?usp=sharing](this link) for guidelines on recommended best practices for this project
+Visit [this link](https://docs.google.com/a/andela.com/document/d/1KIDJUDRgGQrDd-irwK_xjllIOCOvUjITJ1LmErv4kZg/edit?usp=sharing) for guidelines on recommended best practices for this project
