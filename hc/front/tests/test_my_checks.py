@@ -2,7 +2,8 @@ from hc.api.models import Check
 from hc.test import BaseTestCase
 from datetime import timedelta as td
 from django.utils import timezone
-
+from hc.accounts.models import Profile, Member
+from django.contrib.auth.models import User
 
 class MyChecksTestCase(BaseTestCase):
 
@@ -10,6 +11,11 @@ class MyChecksTestCase(BaseTestCase):
         super(MyChecksTestCase, self).setUp()
         self.check = Check(user=self.alice, name="Alice Was Here")
         self.check.save()
+        team_owner = Profile.objects.get(user=self.alice)
+        team_member = User.objects.get(email="bob@example.org")
+        team_info = Member.objects.get(team=team_owner, user=team_member)
+        team_info.checks_assigned = str(self.check.code)
+        team_info.save()
 
     def test_it_works(self):
         for email in ("alice@example.org", "bob@example.org"):
