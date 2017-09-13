@@ -1,7 +1,7 @@
 '''A module to test the sms file for sending sms.
 '''
 from hc.test import BaseTestCase
-from hc.lib.send_sms import TwilioSendSms
+from hc.lib.sms import TwilioSendSms
 from django.test.utils import override_settings
 from django.core.exceptions import MiddlewareNotUsed
 
