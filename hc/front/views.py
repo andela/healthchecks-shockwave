@@ -38,7 +38,7 @@ def my_checks(request):
     if request.team.user == request.user:
         checks_buffer = checks
     else:
-        team_info = Member.objects.get(team=team_owner)
+        team_info = Member.objects.get(team=team_owner, user=request.user)
         checks_assigned = str(team_info.checks_assigned)
         checks_assigned = checks_assigned.split(" ")
         for scheck in checks:
