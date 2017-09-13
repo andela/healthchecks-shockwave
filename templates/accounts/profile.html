@@ -270,6 +270,42 @@
                                 placeholder="friend@example.org">
                         </div>
                     </div>
+                    <br>
+                    <h4>Team Checks</h4>
+                    <div style="min-height: 50px;max-height: 300px;overflow: auto;">                            
+                    <table id="assign-checks-table" class="table hidden-xs">
+                        <tr>
+                            <th>Name</th>
+                            <th>Ping URL</th>
+                        </tr>
+                        {% if user_checks %}
+                        {% for check in user_checks %}
+                        <tr class="checks-row">
+                            <td class="name-cell">
+                                <div data-name="{{ check.name }}"
+                                        class="my-checks-name {% if not check.name %}unnamed{% endif %}">
+                                    <div>{{ check.name|default:"unnamed" }}</div>
+                                </div>
+                            </td>
+                            <td class="url-cell">
+                                <span class="my-checks-url">
+                                    {{ check.code }}
+                                </span>
+                            </td>
+                            <td class="select-cell">
+                                <input type="checkbox" class="toggle" data-toggle="checkbox-x"
+                                 name="check-{{ check.code }}">
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% else %}
+                        <tr class="checks-row">
+                            <td>No checks</td>
+                            <td>No checks</td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
