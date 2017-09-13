@@ -132,6 +132,12 @@ def check_token(request, username, token):
 @login_required
 def profile(request):
     profile = request.user.profile
+
+    q = Check.objects.filter(user=request.team.user).order_by("created")
+    checks = list(q)
+    holder = Check.objects.filter(user=request.team.user).order_by("created")
+    user_checks = list(holder)
+
     # Switch user back to its default team
     if profile.current_team_id != profile.id:
         request.team = profile
@@ -172,10 +178,6 @@ def profile(request):
                 except User.DoesNotExist:
                     user = _make_user(email)
 
-                q = Check.objects.filter(user=request.team.user).order_by("created")
-                checks = list(q)
-                holder = Check.objects.filter(user=request.team.user).order_by("created")
-                user_checks = list(holder)
                 checks_assigned = ""
                 for key in request.POST:
                     if key.startswith("check-"):
