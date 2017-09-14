@@ -21,4 +21,4 @@ class Post(models.Model):
         return self.title
 
     def get_tag_names(self, pk):
-        return Tag.objects.filter(post= pk)
+        return Tag.objects.filter(post=pk)
