@@ -19,7 +19,7 @@
     <div id="my-checks-tags" class="col-sm-12">
         {% for tag, count in tags %}
             {% if tag in down_tags %}
-                <button class="btn btn-danger btn-xs" data-toggle="button">{{ tag }}</button>
+                <button class="btn btn-nag btn-xs" data-toggle="button">{{ tag }}</button>
             {% elif tag in nag_time_tags %}
                 <button class="btn btn-nag btn-xs" data-toggle="button">{{ tag }}</button>                
             {% elif tag in grace_tags %}

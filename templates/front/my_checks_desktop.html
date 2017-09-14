@@ -6,7 +6,10 @@
         <th>Ping URL</th>
         <th class="th-period">
             Period <br />
-            <span class="checks-subline">Grace / Nag</span>
+            <span class="checks-subline">Grace</span>
+        </th>
+        <th class="th-period">
+            Nag Time
         </th>
         <th>Last Ping</th>
         <th></th>
@@ -60,8 +63,16 @@
                 {{ check.timeout|hc_duration }}
                 <br />
                 <span class="checks-subline">
-                {{ check.grace|hc_duration }} / {{ check.nag_time|hc_duration }}
+                {{ check.grace|hc_duration }}
                 </span>
+            </span>
+        </td>
+        <td class="timeout-cell">
+            <span
+                data-url="{% url 'hc-update-timeout' check.code %}"
+                data-nag="{{ check.nag_time.total_seconds }}"
+                class="timeout-nag">
+                {{ check.nag_time|hc_duration }}
             </span>
         </td>
         <td>
