@@ -89,18 +89,21 @@ class NotifyTestCase(BaseTestCase):
             "get", "http://bar", headers={"User-Agent": "healthchecks.io"},
             timeout=5)
 
-    def test_sms(self):
-        '''Test that a notification for sms is created. The test sets
-        up an SMS channel to be integrated to a check. It calls the notify
-        method for the channel that should create a notification object
-        with an error attribut of null. The number +254718217411 can be changed
-        to the phone number of the tester for verified numbers on his twilio
-        account.
+    def test_sms_and_telegram(self):
+        '''Test that a notification for sms and telegram is created. The test
+        sets up an SMS and Telgram channel to be integrated to a check. It calls
+        the notify method for the channels that should create a notification object
+        with an error attribute of null. The test deletes as it loops to allow the
+        get() method on the Notification object ot get only one exisiting
+        notification
         '''
-        self._setup_data("sms", "+254718217411")
-        self.channel.notify(self.check)
-        self.assertEqual(Notification.objects.count(), 1)
-        self.assertEqual(Notification.objects.get().error, "")
+        channel_values = {"sms":"+254718217411", "telegram": 403657329}
+        for key in channel_values:
+            self._setup_data(key, channel_values.get(key))
+            self.channel.notify(self.check)
+            self.assertEqual(Notification.objects.count(), 1)
+            self.assertEqual(Notification.objects.get().error, "")
+            Notification.objects.all().delete()
 
     def test_email(self):
         self._setup_data("email", "alice@example.org")
