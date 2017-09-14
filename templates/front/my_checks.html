@@ -20,6 +20,8 @@
         {% for tag, count in tags %}
             {% if tag in down_tags %}
                 <button class="btn btn-danger btn-xs" data-toggle="button">{{ tag }}</button>
+            {% elif tag in nag_time_tags %}
+                <button class="btn btn-nag btn-xs" data-toggle="button">{{ tag }}</button>                
             {% elif tag in grace_tags %}
                 <button class="btn btn-warning btn-xs" data-toggle="button">{{ tag }}</button>
             {% else %}

@@ -22,7 +22,11 @@
     white-space: nowrap;
 
 }
-
+.btn-nag {
+    color: #ffffff;
+    background-color: #880e4f!important;
+    border-color: #770d3e;
+}
 #period-slider {
     margin: 20px 50px 80px 50px;
 }
@@ -44,7 +48,7 @@
 }
 
 #nag-slider.noUi-connect {
-  background: #e91e63;
+  background: #880e4f;
 }
 
 #period-slider .noUi-value, #grace-slider .noUi-value, #nag-slider .noUi-value {
