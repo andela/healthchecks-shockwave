@@ -17,6 +17,7 @@ from hc.api.decorators import uuid_or_400
 from hc.api.models import DEFAULT_GRACE, DEFAULT_TIMEOUT, Channel, Check, Ping
 from hc.front.forms import (AddChannelForm, AddWebhookForm, NameTagsForm,
                             TimeoutForm)
+from .models import Faq, Video
 
 
 # from itertools recipes:
@@ -589,3 +590,18 @@ def privacy(request):
 
 def terms(request):
     return render(request, "front/terms.html", {})
+
+# Helpcenter Views
+def helpcenter(request):
+    return render(request, "front/help_center.html", {})
+
+def faqs(request):
+    faqs = Faq.objects.all().order_by('created_date')
+    return render(request, 'front/faq.html', {'faqs' : faqs})
+
+def videos(request):
+    videos = Video.objects.all().order_by('created_date')
+    return render(request, 'front/videos.html', {'videos': videos})
+def single_video(request, pk):
+    video = get_object_or_404(Video, pk=pk)
+    return render(request, 'front/single_video.html', {'video' : video})
