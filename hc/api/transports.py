@@ -244,7 +244,7 @@ class Telegram(HttpTransport):
         url = "https://api.telegram.org/bot%s/sendmessage"% settings.TELEGRAM_AUTH_TOKEN
         description = tmpl("sms_description.html", check=check)
         self.post(url, json={
-            "chat_id": self.channel.value,
+            "chat_id": self.channel.telegram_id,
             "text": description,
             "parse_mode": "html"})
             
