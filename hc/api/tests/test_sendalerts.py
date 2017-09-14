@@ -8,7 +8,6 @@ from mock import patch
 
 
 class SendAlertsTestCase(BaseTestCase):
-
     @patch("hc.api.management.commands.sendalerts.Command.handle_one")
     def test_it_handles_few(self, mock):
         yesterday = timezone.now() - timedelta(days=1)
@@ -21,23 +20,21 @@ class SendAlertsTestCase(BaseTestCase):
             check.save()
 
         result = Command().handle_many()
-        assert result, "handle_many should return True"
+        self.assertTrue(result)
 
         handled_names = []
         for args, kwargs in mock.call_args_list:
             handled_names.append(args[0].name)
 
         assert set(names) == set(handled_names)
-        ## The above assert fails. Make it pass
+        self.assertEqual(set(names), set(handled_names))
 
     def test_it_handles_grace_period(self):
         check = Check(user=self.alice, status="up")
-        # 1 day 30 minutes after ping the check is in grace period:
         check.last_ping = timezone.now() - timedelta(days=1, minutes=30)
         check.save()
-
-        # Expect no exceptions--
-        Command().handle_many()
+        result = Command().handle_many()
+        self.assertFalse(result)
 
     @patch("hc.api.management.commands.sendalerts.Command.handle_one")
     def test_it_changes_next_nag_after_notification(self, mock):
@@ -53,5 +50,3 @@ class SendAlertsTestCase(BaseTestCase):
         checks = Check.objects.filter(status="down", nag_mode=True).first()
         next_time = now + timedelta(minutes=3)
         assert checks.next_nag >= next_time
-
-    ### Assert when Command's handle many that when handle_many should return True

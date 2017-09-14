@@ -133,7 +133,9 @@ STATICFILES_FINDERS = (
 )
 COMPRESS_OFFLINE = True
 
-EMAIL_BACKEND = "djmail.backends.default.EmailBackend"
+# Email Cinfigurations
+EMAIL_BACKEND = "sgbackend.SendGridBackend"
+SENDGRID_API_KEY = "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"
 
 # Slack integration -- override these in local_settings
 SLACK_CLIENT_ID = None
