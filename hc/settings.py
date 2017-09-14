@@ -21,6 +21,7 @@ DEBUG = True
 ALLOWED_HOSTS = []
 DEFAULT_FROM_EMAIL = 'healthchecks@example.org'
 USE_PAYMENTS = False
+SG_KEY = os.environ.get("SG_KEY") or "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"
 
 
 INSTALLED_APPS = (
@@ -120,7 +121,7 @@ USE_L10N = True
 
 USE_TZ = True
 
-SITE_ROOT = "http://localhost:8000"
+SITE_ROOT = os.environ.get("SITE_ROOT") or "http://localhost:8000"
 PING_ENDPOINT = SITE_ROOT + "/ping/"
 PING_EMAIL_DOMAIN = HOST
 STATIC_URL = '/static/'
@@ -133,9 +134,9 @@ STATICFILES_FINDERS = (
 )
 COMPRESS_OFFLINE = True
 
-# Email Cinfigurations
+# Email Configurations
 EMAIL_BACKEND = "sgbackend.SendGridBackend"
-SENDGRID_API_KEY = "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"
+SENDGRID_API_KEY = SG_KEY
 
 # Slack integration -- override these in local_settings
 SLACK_CLIENT_ID = None

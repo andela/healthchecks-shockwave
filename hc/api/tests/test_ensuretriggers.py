@@ -14,20 +14,20 @@ class EnsureTriggersTestCase(TestCase):
         Command().handle()
 
         check = Check.objects.create()
-        assert check.alert_after is None
+        self.assertIsNone(check.alert_after)
 
         check.last_ping = timezone.now()
         check.save()
         check.refresh_from_db()
-        assert check.alert_after is not None
-        ### The above assert fails. Make it pass
+        self.assertIsNotNone(check.alert_after)
 
         alert_after = check.alert_after
 
         check.last_ping += timedelta(days=1)
         check.save()
+       
         check.refresh_from_db()
-        ### Assert that alert_after is lesser than the check's alert_after
+        self.assertLess(alert_after, check.alert_after)
 
     def test_ensure_triggers_alert_before(self):
         """
@@ -64,3 +64,4 @@ class EnsureTriggersTestCase(TestCase):
         check.save()
         check.refresh_from_db()
         self.assertEqual(check.alert_before, (check.last_ping+check.timeout-check.grace))
+

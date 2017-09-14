@@ -13,6 +13,9 @@ class CheckModelTestCase(TestCase):
         check.tags = " foo  bar "
         self.assertEquals(check.tags_list(), ["foo", "bar"])
 
+        check.tags = "  "
+        self.assertEqual(check.tags_list(), [])
+
     def test_status_works_with_grace_period(self):
         check = Check()
         check.status = "up"
@@ -26,6 +29,11 @@ class CheckModelTestCase(TestCase):
         check.last_ping = timezone.now() - timedelta(days=1, minutes=30)
         self.assertTrue(check.in_grace_period())
         check.status = "paused"
+        self.assertFalse(check.in_grace_period())
+        
+    def test_new_check_is_not_in_grace_period(self):
+        check = Check()
+        check.status = "new"
         self.assertFalse(check.in_grace_period())
 
     def test_update_status_often_to_up(self):
