@@ -1,7 +1,7 @@
 from collections import Counter
 from datetime import timedelta as td
 from itertools import tee
-
+import json
 import requests
 from django.conf import settings
 from django.contrib import messages
@@ -18,6 +18,7 @@ from hc.api.models import DEFAULT_GRACE, DEFAULT_TIMEOUT, Channel, Check, Ping
 from hc.front.forms import (AddChannelForm, AddWebhookForm, NameTagsForm,
                             TimeoutForm)
 from hc.lib.sms import TwilioSendSms
+
 
 
 # from itertools recipes:
@@ -293,6 +294,10 @@ def channels(request):
 
 
 def do_add_channel(request, data):
+    '''A method that adds a channel and assigns it all the checks. For email
+    it sends a verification link. For SMS it validates the users number. For
+    telegram it validates the user's account.
+    '''
     form = AddChannelForm(data)
     if form.is_valid():
         channel = form.save(commit=False)
@@ -303,7 +308,23 @@ def do_add_channel(request, data):
                 return render(request, "integrations/add_sms.html", {'error_message':error_message})
         channel.user = request.team.user
         channel.save()
-
+        if channel.kind == "telegram":
+            url = "https://api.telegram.org/bot%s/getupdates"% settings.TELEGRAM_AUTH_TOKEN
+            response_data = requests.get(url)
+            json_data = json.loads(response_data.content)
+            for item in json_data["result"]:
+                if item["message"]["from"]["first_name"].lower() == data["first_name"].lower():
+                    if item["message"]["from"]["last_name"].lower() == data["last_name"].lower():
+                        channel.telegram_id = item["message"]["from"]["id"]
+                        channel.value = data["first_name"]
+                        break
+            if not channel.value:
+                script1 = "The First and Last Names entered do not match a valid user "
+                script2 = "for the telegram bot. Ensure that you entered the right names"
+                script3 = " and that you pressed the start button on the bot message"
+                e_message = "%s"%(script1+script2+script3)
+                return render(request,
+                              "integrations/add_telegram.html", {"error_message": e_message})
         channel.assign_all_checks()
 
         if channel.kind == "email":
@@ -313,6 +334,10 @@ def do_add_channel(request, data):
     else:
         return HttpResponseBadRequest()
 
+@login_required
+def add_telegram(request):
+    '''A method that renders a page for adding telegram'''
+    return render(request, "integrations/add_telegram.html", {"error_message":""})
 
 @login_required
 def add_channel(request):
@@ -321,9 +346,7 @@ def add_channel(request):
 
 @login_required
 def add_sms(request):
-    '''
-    A method that renders a page for adding sms when called aupin
-    '''
+    '''A method that renders a page for adding sms.'''
     return render(request, "integrations/add_sms.html", {'error_message':""})
 
 
