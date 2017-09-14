@@ -33,6 +33,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'compressor',
     'djmail',
+    'embed_video',
 
     'hc.accounts',
     'hc.api',
@@ -69,7 +70,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'hc.payments.context_processors.payments'
+                'hc.payments.context_processors.payments',
+                # 'django.core.context_processors.request',
             ],
         },
     },
