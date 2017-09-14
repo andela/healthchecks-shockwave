@@ -56,6 +56,3 @@ def delete_post(request, pk):
 		return redirect('hc-blog-detail', pk=delete_post.pk)
 
 	return redirect('hc-blog-detail', pk=delete_post.pk)
-
-def publish_post(request):
-    pass
