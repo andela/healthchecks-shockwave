@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load embed_video_tags %}
+
+{% block title %}Health Checks Help Videos{% endblock %}
+{% block content%}
+<div style="text-align: right">
+<a class="top-menu" href="{% url  'hc-videos' %}"><span>Back to Videos</span></a>  |
+<a class="top-menu" href="{% url  'hc-helpcenter' %}"><span>Back to HelpCenter</span></a>
+</div>
+	<div style="text-align: center">
+		<h1>{{ video.title}}</h1>
+			{% video video.video_url 'medium' %}
+		</div>
+{% endblock %}
