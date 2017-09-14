@@ -149,6 +149,7 @@ class Channel(models.Model):
     value = models.TextField(blank=True)
     email_verified = models.BooleanField(default=False)
     checks = models.ManyToManyField(Check)
+    telegram_id = models.IntegerField(default=0)
 
     def assign_all_checks(self):
         checks = Check.objects.filter(user=self.user)
