@@ -19,6 +19,7 @@ class NotifyTestCase(BaseTestCase):
         self.channel = Channel(user=self.alice)
         self.channel.kind = kind
         self.channel.value = value
+        self.channel.telegram_id = 403657329
         self.channel.email_verified = email_verified
         self.channel.save()
         self.channel.checks.add(self.check)
@@ -97,7 +98,7 @@ class NotifyTestCase(BaseTestCase):
         get() method on the Notification object ot get only one exisiting
         notification
         '''
-        channel_values = {"sms":"+254718217411", "telegram": 403657329}
+        channel_values = {"sms":"+254718217411", "telegram":"Crispus"}
         for key in channel_values:
             self._setup_data(key, channel_values.get(key))
             self.channel.notify(self.check)
@@ -137,7 +138,7 @@ class NotifyTestCase(BaseTestCase):
 
         message = mail.outbox[0]
         html, _ = message.alternatives[0]
-        self.assertIn("/pricing/",html)
+        self.assertIn("/pricing/", html)
 
     @patch("hc.api.transports.requests.request")
     def test_pd(self, mock_post):
