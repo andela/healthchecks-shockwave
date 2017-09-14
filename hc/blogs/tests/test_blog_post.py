@@ -14,19 +14,22 @@ class BlogTestCase(BaseTestCase):
 				tags="Cities", author=self.alice)
 		Post.objects.create(title="Teams",text="IT Teams", \
 				tags="Tech", author=self.alice)
+		self.URL = "/blog/"
 
 	def test_blog_url(self):
-		response = self.client.get('/blog/')
+		response = self.client.get(self.URL)
 		self.assertEquals(response.status_code, 200)
 
 	def test_create_blog_post(self):
 		Post.objects.create(title="Trravelling",text="Nairobi", \
 				tags="Cities", author=self.alice)
-		response = self.client.get('/blog/')
+		response = self.client.get(self.URL)
 		self.assertEquals(response.status_code, 200)
+		post_id = str(Post.objects.last().pk)
 		post = Post.objects.all()
 		self.assertEquals(len(post), 3)
-		response = self.client.get('/blog/post/3/')
+		response = self.client.get(self.URL+'post/' + post_id +'/')
+		self. assertEquals(response.status_code, 200)
 
 	def test_update_blog_post(self):
 		post = Post.objects.first()
@@ -37,7 +40,6 @@ class BlogTestCase(BaseTestCase):
 		post = Post.objects.get(id=post_id)
 		self.assertEquals(post.title, "Travelling to Kenya")
 		self.assertEquals(post.text, "Visit Nairobi")
-
 
 	def test_delete_blog_post(self):
 		post =Post.objects.all()
