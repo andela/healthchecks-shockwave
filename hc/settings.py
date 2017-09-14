@@ -156,6 +156,9 @@ TWILIO_ACCOUNT_SID = None
 TWILIO_AUTH_TOKEN = None
 TWILIO_NUMBER = None
 
+#Telegram integration -- override item on local_settings
+TELEGRAM_AUTH_TOKEN = None
+
 if os.path.exists(os.path.join(BASE_DIR, "hc/local_settings.py")):
     from .local_settings import *
 else:
