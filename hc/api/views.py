@@ -40,6 +40,9 @@ def ping(request, code):
     ping.ua = headers.get("HTTP_USER_AGENT", "")[:200]
     ping.save()
 
+    if check.before_reverse_grace_period():
+        check.send_alert()
+
     response = HttpResponse("OK")
     response["Access-Control-Allow-Origin"] = "*"
     return response
