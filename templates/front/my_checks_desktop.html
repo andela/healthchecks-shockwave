@@ -8,6 +8,9 @@
             Period <br />
             <span class="checks-subline">Grace</span>
         </th>
+        <th class="th-period">
+            Nag Time
+        </th>
         <th>Last Ping</th>
         <th></th>
     </tr>
@@ -20,6 +23,8 @@
             {% elif check.get_status == "paused" %}
                 <span class="status icon-paused"
                     data-toggle="tooltip" title="Monitoring paused. Ping to resume."></span>
+            {% elif check.in_nag_period %}
+                <span class="status icon-nag"></span>
             {% elif check.in_grace_period %}
                 <span class="status icon-grace"></span>
             {% elif check.get_status == "up" %}
@@ -60,6 +65,14 @@
                 <span class="checks-subline">
                 {{ check.grace|hc_duration }}
                 </span>
+            </span>
+        </td>
+        <td class="timeout-cell">
+            <span
+                data-url="{% url 'hc-update-timeout' check.code %}"
+                data-nag="{{ check.nag_time.total_seconds }}"
+                class="timeout-nag">
+                {{ check.nag_time|hc_duration }}
             </span>
         </td>
         <td>
