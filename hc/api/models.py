@@ -24,7 +24,7 @@ DEFAULT_GRACE = td(hours=1)
 CHANNEL_KINDS = (("email", "Email"), ("webhook", "Webhook"),
                  ("hipchat", "HipChat"),
                  ("slack", "Slack"), ("pd", "PagerDuty"), ("po", "Pushover"),
-                 ("victorops", "VictorOps"), ("sms", "SMS"))
+                 ("victorops", "VictorOps"), ("sms", "SMS"), ("telegram", "Telegram"))
 
 PO_PRIORITIES = {
     -2: "lowest",
