@@ -6,9 +6,3 @@ static-collected
 
 .DS_Store
 static/.DS_Store
-hc/blogs/tests/test_blog_frontend.py
-geckodriver
-geckodriver.log
-hc/blogs/geckodriver
-hc/blogs/tests/chromedriver
-hc/blogs/tests/geckodriver
