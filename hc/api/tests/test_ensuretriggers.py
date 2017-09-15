@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from django.test import TestCase
+from unittest import TestCase as TCase
 from django.utils import timezone
 
 from hc.api.management.commands.ensuretriggers import Command
@@ -26,6 +27,7 @@ class EnsureTriggersTestCase(TestCase):
         check.last_ping += timedelta(days=1)
         check.save()
         check.refresh_from_db()
+
         ### Assert that alert_after is lesser than the check's alert_after 
         self.assertLess(alert_after, check.alert_after)
 
