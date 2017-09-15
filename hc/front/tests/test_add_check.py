@@ -13,6 +13,7 @@ class AddCheckTestCase(BaseTestCase):
         self.assertRedirects(r, "/checks/")
         assert Check.objects.count() == 1
 
+<<<<<<< HEAD
     def test_team_access(self):
         '''Test that team members can view all added checks, added by any
         member in the team while non-members cannot.
@@ -45,3 +46,6 @@ class AddCheckTestCase(BaseTestCase):
         self.client.login(username="charlie@example.org", password="password")
         charlies_checks = self.client.get(url2)
         self.assertNotContains(charlies_checks, alices_check.code)
+=======
+    ### Test that team access works
+>>>>>>> parent of 2637d38... merge(all): merge files from development
