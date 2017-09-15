@@ -151,6 +151,13 @@ PUSHOVER_EMERGENCY_EXPIRATION = 86400
 PUSHBULLET_CLIENT_ID = None
 PUSHBULLET_CLIENT_SECRET = None
 
+#Setting Taggit to be case insenstive
+TAGGIT_CASE_INSENSITIVE = True
+
+#Summernote media Locations
+MEDIA_URL = '/static/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'static/media/')
+
 #Twilio integration -- override those in local_settings
 TWILIO_ACCOUNT_SID = None
 TWILIO_AUTH_TOKEN = None
