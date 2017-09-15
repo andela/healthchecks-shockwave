@@ -34,9 +34,14 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'compressor',
     'djmail',
+<<<<<<< HEAD
     'taggit',
     'django_summernote',
     'embed_video',
+=======
+    'embed_video',
+
+>>>>>>> 450f6ba45c5b4daa0a31b32e08962e7bacd2662b
     'hc.accounts',
     'hc.api',
     'hc.front',
