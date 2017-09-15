@@ -35,6 +35,8 @@
             {% if ch.kind == "po" %} Pushover {% endif %}
             {% if ch.kind == "victorops" %} VictorOps {% endif %}
             {% if ch.kind == "pushbullet" %} Pushbullet {% endif %}
+            {% if ch.kind == "sms" %} SMS {% endif %}
+            {% if ch.kind == "telegram" %} Telegram {% endif %}
             </td>
             <td class="value-cell">
                 {% if ch.kind == "email" %}
@@ -150,6 +152,22 @@
             <p>Get an email message when check goes up or down.</p>
 
             <a href="{% url 'hc-add-email' %}" class="btn btn-primary">Add Integration</a>
+        </li>
+        <li>
+            <img src="{% static 'img/integrations/sms.png' %}"
+                class="icon" alt="SMS icon" />
+            <h2>SMS</h2>
+            <p>Get an sms when check goes up or down.</p>
+    
+            <a href="{% url 'hc-add-sms' %}" class="btn btn-primary">Add Integration</a>
+        </li>
+        <li>
+            <img src="{% static 'img/integrations/telegram.png' %}"
+                class="icon" alt="Telegram icon" />
+            <h2>Telegram</h2>
+            <p>Get a telegram message when check goes up or down.</p>
+    
+            <a href="{% url 'hc-add-telegram' %}" class="btn btn-primary">Add Integration</a>
         </li>
         <li>
             <img src="{% static 'img/integrations/webhook.png' %}"

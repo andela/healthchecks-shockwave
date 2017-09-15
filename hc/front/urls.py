@@ -18,6 +18,8 @@ channel_urls = [
     url(r'^add_pd/$', views.add_pd, name="hc-add-pd"),
     url(r'^add_slack/$', views.add_slack, name="hc-add-slack"),
     url(r'^add_slack_btn/$', views.add_slack_btn, name="hc-add-slack-btn"),
+    url(r'^add_sms/$', views.add_sms, name="hc-add-sms"),
+    url(r'^add_telegram/$', views.add_telegram, name="hc-add-telegram"),
     url(r'^add_hipchat/$', views.add_hipchat, name="hc-add-hipchat"),
     url(r'^add_pushbullet/$', views.add_pushbullet, name="hc-add-pushbullet"),
     url(r'^add_pushover/$', views.add_pushover, name="hc-add-pushover"),
@@ -34,6 +36,9 @@ urlpatterns = [
     url(r'^checks/add/$', views.add_check, name="hc-add-check"),
     url(r'^checks/([\w-]+)/', include(check_urls)),
     url(r'^integrations/', include(channel_urls)),
+
+    #add failed tasks url
+    url(r'^checks/failed/$', views.my_failed_checks, name="hc-failed-checks"),
 
     url(r'^docs/$', views.docs, name="hc-docs"),
     url(r'^docs/api/$', views.docs_api, name="hc-docs-api"),
