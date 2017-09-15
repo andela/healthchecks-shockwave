@@ -35,3 +35,4 @@ sendgrid-django==4.0.4
 twilio==6.6.2
 PySocks==1.6.7
 PyJWT==1.5.3
+sendgrid-django==4.0.4
