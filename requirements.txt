@@ -32,3 +32,7 @@ wrapt==1.10.11
 python-http-client==3.0.0
 sendgrid==3.6.5
 sendgrid-django==4.0.4
+twilio==6.6.2
+PySocks==1.6.7
+PyJWT==1.5.3
+sendgrid-django==4.0.4
