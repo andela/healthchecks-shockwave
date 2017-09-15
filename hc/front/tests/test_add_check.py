@@ -1,6 +1,8 @@
 '''A module to test adding of checks on the front end'''
 from hc.api.models import Check
 from hc.test import BaseTestCase
+from hc.accounts.models import Member
+from django.contrib.auth.models import User
 
 
 class AddCheckTestCase(BaseTestCase):
@@ -34,6 +36,16 @@ class AddCheckTestCase(BaseTestCase):
         self.client.logout()
         value = Check.objects.all()
         alices_check = list(value)[0]
+
+        # assign alice's check to bob
+        team_owner = User.objects.get(email="alice@example.org")
+        team_member = User.objects.get(email="bob@example.org")
+        team_owner_profile = Profile.objects.get(user=team_owner)
+        team_info = Member.objects.get(team=team_owner_profile,
+                                       user=team_member)
+        team_info.checks_assigned = alices_check.code
+        team_info.save()
+
         self.client.login(username="bob@example.org", password="password")
         bobs_checks = self.client.get(url2)
         self.assertContains(bobs_checks, alices_check.code)
