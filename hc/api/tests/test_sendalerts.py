@@ -49,4 +49,4 @@ class SendAlertsTestCase(BaseTestCase):
         Command().handle_many()
         checks = Check.objects.filter(status="down", nag_mode=True).first()
         next_time = now + timedelta(minutes=3)
-        assert checks.next_nag >= next_time
+        self.assertGreaterEqual(checks.next_nag, next_time)

@@ -66,7 +66,6 @@ def checks(request):
             check.nag_time = td(seconds=request.json["nag_time"])
 
         check.save()
-        print("Nag Time: %s" % (check.nag_time))
 
         # This needs to be done after saving the check, because of
         # the M2M relation between checks and channels:
