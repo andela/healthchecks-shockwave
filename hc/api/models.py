@@ -17,7 +17,8 @@ STATUSES = (
     ("up", "Up"),
     ("down", "Down"),
     ("new", "New"),
-    ("paused", "Paused")
+    ("paused", "Paused"),
+    ("often", "Often")
 )
 DEFAULT_TIMEOUT = td(days=1)
 DEFAULT_GRACE = td(hours=1)
@@ -51,6 +52,7 @@ class Check(models.Model):
     n_pings = models.IntegerField(default=0)
     last_ping = models.DateTimeField(null=True, blank=True)
     alert_after = models.DateTimeField(null=True, blank=True, editable=False)
+    alert_before = models.DateTimeField(null=True, blank=True, editable=False)
     status = models.CharField(max_length=6, choices=STATUSES, default="new")
 
     def name_then_code(self):
@@ -69,7 +71,7 @@ class Check(models.Model):
         return "%s@%s" % (self.code, settings.PING_EMAIL_DOMAIN)
 
     def send_alert(self):
-        if self.status not in ("up", "down"):
+        if self.status not in ("up", "down", "often"):
             raise NotImplementedError("Unexpected status: %s" % self.status)
 
         errors = []
@@ -86,6 +88,9 @@ class Check(models.Model):
 
         now = timezone.now()
 
+        if self.status == "often" and self.last_ping + self.timeout - self.grace > now:
+            return self.status
+
         if self.last_ping + self.timeout + self.grace > now:
             return "up"
 
@@ -98,6 +103,17 @@ class Check(models.Model):
         up_ends = self.last_ping + self.timeout
         grace_ends = up_ends + self.grace
         return up_ends < timezone.now() < grace_ends
+
+    def __before_reverse_grace_period(self):
+        """
+        Method that checks that a ping sent in reverse grace period
+        returns true
+        """
+        if self.status in ("new", "paused"):
+            return False
+        up_ends = self.last_ping + self.timeout
+        grace_begins = up_ends - self.grace
+        return timezone.now() < grace_begins
 
     def assign_all_channels(self):
         if self.user:
@@ -129,6 +145,18 @@ class Check(models.Model):
             result["next_ping"] = None
 
         return result
+
+    def ping_often(self):
+        """
+        Checks if ping is occuring often and sends out an alert if it is
+        """
+        if self.__before_reverse_grace_period():
+            self.status = "often"
+            self.send_alert()
+            return "often"
+        if self.status == "often":
+            return "up"
+        return self.status
 
 
 class Ping(models.Model):

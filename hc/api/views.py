@@ -22,6 +22,8 @@ def ping(request, code):
         return HttpResponseBadRequest()
 
     check.n_pings = F("n_pings") + 1
+    
+    check.status = check.ping_often()
     check.last_ping = timezone.now()
     if check.status in ("new", "paused"):
         check.status = "up"
