@@ -301,11 +301,10 @@ def do_add_channel(request, data):
     form = AddChannelForm(data)
     if form.is_valid():
         channel = form.save(commit=False)
-        if channel.kind == "sms":
-            if not TwilioSendSms().check_number(data["value"]):
-                number_entered = data["value"]
-                error_message = "The number %s is not a valid number." % number_entered
-                return render(request, "integrations/add_sms.html", {'error_message':error_message})
+        if channel.kind == "sms" and not TwilioSendSms().check_number(data["value"]):
+            number_entered = data["value"]
+            error_message = "The number %s is not a valid number." % number_entered
+            return render(request, "integrations/add_sms.html", {'error_message':error_message})
         if channel.kind == "telegram":
             url = "https://api.telegram.org/bot%s/getupdates"% settings.TELEGRAM_AUTH_TOKEN
             response_data = requests.get(url)
