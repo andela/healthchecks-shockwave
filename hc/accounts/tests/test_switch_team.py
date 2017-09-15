@@ -30,6 +30,8 @@ class SwitchTeamTestCase(BaseTestCase):
         url = "/accounts/switch_team/%s/" % self.alice.username
         r = self.client.get(url, follow=True)
         ### Assert the expected error code
+        response = self.client.get(url, follow=True)
+        self.assertEqual(200, response.status_code)
 
     def test_it_views_assigned_checks_only(self):
         self.tony = User(username="tony", email="tony@yes.com")
