@@ -352,30 +352,42 @@ def channels(request):
     channels = Channel.objects.filter(user=request.team.user).order_by("created")
     channels = channels.annotate(n_checks=Count("checks"))
 
-    
+
     q = Check.objects.filter(user=request.team.user).order_by("created")
     checks = list(q)
     team_owner = Profile.objects.get(user=request.team.user)
     checks_buffer = []
 
-    check_count = 0
+    ch_assigned = []
     if request.team.user == request.user:
         checks_buffer = checks
     else:
-        team_info = Member.objects.get(team=team_owner)
-        checks_assigned = str(team_info.checks_assigned)
-        checks_assigned = checks_assigned.split(" ")
-        for scheck in checks:
-            for check_assigned in checks_assigned:
-                str_scheck = str(scheck.code)
-                if str_scheck == check_assigned:
-                    checks_buffer.append(scheck)
+        team_infos = list(Member.objects.filter(team=team_owner, user=request.user))
+        for team_info in team_infos:
+            checks_assigned = str(team_info.checks_assigned)
+            checks_assigned = checks_assigned.split(" ")
+            for scheck in checks:
+                for check_assigned in checks_assigned:
+                    str_scheck = str(scheck.code)
+                    if str_scheck == check_assigned:
+                        checks_buffer.append(scheck)
 
-        for c in channels:
-            assigned = set(c.checks.values_list('code', flat=True).distinct())
-            for check_assigned in checks_assigned:
-                if check_assigned in assigned:
-                    check_count = check_count + 1
+            for c in channels:
+                assigned = set(c.checks.values_list('code', flat=True).distinct())
+                assigned = list(assigned)
+                print(assigned)
+                check_count = 0
+                for a in assigned:
+                    a = str(a)
+                    a = a.strip("")
+                    print(a)
+                    for xcheck in checks_assigned:
+                        if xcheck != "":
+                            if xcheck in a:
+                                print("this one passed the echo test", xcheck)
+                                check_count = check_count + 1
+                    print("this is the count", check_count)
+                ch_assigned.append((c, check_count))
 
     num_checks = len(checks_buffer)
 
@@ -385,7 +397,7 @@ def channels(request):
         "num_checks": num_checks,
         "enable_pushbullet": settings.PUSHBULLET_CLIENT_ID is not None,
         "enable_pushover": settings.PUSHOVER_API_TOKEN is not None,
-        "check_count": check_count
+        "ch_assigned": ch_assigned
     }
     return render(request, "front/channels.html", ctx)
 
@@ -465,7 +477,7 @@ def channel_checks(request, code):
     if request.team.user == request.user:
         checks_buffer = checks
     else:
-        team_info = Member.objects.get(team=team_owner)
+        team_info = Member.objects.get(team=team_owner, user=request.user)
         checks_assigned = str(team_info.checks_assigned)
         checks_assigned = checks_assigned.split(" ")
         for scheck in checks:
