@@ -68,7 +68,7 @@ def _sqlite(cursor):
     AFTER UPDATE OF last_ping, timeout, grace ON api_check
     FOR EACH ROW BEGIN
         UPDATE api_check
-        SET alert_after=
+        SET alert_after =
             datetime(strftime('%s', last_ping) +
             timeout/1000000 + grace/1000000, 'unixepoch')
         WHERE id = OLD.id;
