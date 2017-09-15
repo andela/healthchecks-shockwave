@@ -14,7 +14,7 @@ class TestTilioSendSms(BaseTestCase):
         they are confirmed to be valid, while also passes invalid numbers
         and asserts that they are invalid.
         '''
-        valid_numbers = ["+254718217411", "+14157012311", "+270860123000"]
+        valid_numbers = ["+254724364364", "+14157012311", "+270860123000"]
         for number in valid_numbers:
             self.assertEqual(TwilioSendSms().check_number(number), True)
         invalid_numbers = ["+2547182174", "+141570311", "+270863000"]

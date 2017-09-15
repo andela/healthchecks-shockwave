@@ -6,6 +6,7 @@ from hc.api.models import Channel, Check, Notification
 from hc.test import BaseTestCase
 from mock import patch
 from requests.exceptions import ConnectionError, Timeout
+from django.conf import settings
 
 
 class NotifyTestCase(BaseTestCase):
@@ -19,7 +20,7 @@ class NotifyTestCase(BaseTestCase):
         self.channel = Channel(user=self.alice)
         self.channel.kind = kind
         self.channel.value = value
-        self.channel.telegram_id = 403657329
+        self.channel.telegram_id = settings.TELEGRAM_ID
         self.channel.email_verified = email_verified
         self.channel.save()
         self.channel.checks.add(self.check)
@@ -98,7 +99,7 @@ class NotifyTestCase(BaseTestCase):
         get() method on the Notification object ot get only one exisiting
         notification
         '''
-        channel_values = {"sms":"+254718217411", "telegram":"Crispus"}
+        channel_values = {"sms":settings.TWILIO_VERIFY_NUMBER, "telegram":"Crispus"}
         for key in channel_values:
             self._setup_data(key, channel_values.get(key))
             self.channel.notify(self.check)
