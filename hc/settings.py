@@ -37,7 +37,6 @@ INSTALLED_APPS = (
     'taggit',
     'django_summernote',
     'embed_video',
-    'embed_video',
 
     'hc.accounts',
     'hc.api',
