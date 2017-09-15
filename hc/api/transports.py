@@ -4,7 +4,7 @@ from django.utils import timezone
 import json
 import requests
 from six.moves.urllib.parse import quote
-from hc.lib.sms import TwilioSendSms
+
 from hc.lib import emails
 
 
@@ -216,35 +216,3 @@ class VictorOps(HttpTransport):
         }
 
         return self.post(self.channel.value, payload)
-
-class SMS(HttpTransport):
-    '''
-    A class that sends and SMS
-    Key word argument:
-    check -- A check from the users checks is passed
-    '''
-    def notify(self, check):
-        '''
-        A method that calls an instance of TwilioSendSms and its method for sending
-        messages. Arguments passed are, a number with a plus string before it and a
-        description variable derived from html file.
-        '''
-        description = tmpl("sms_description.html", check=check)
-        TwilioSendSms().send("+" + self.channel.value, description)
-
-class Telegram(HttpTransport):
-    '''A class that sends a Telgram message from healthchecks.io confirmimg the
-    status of a check.
-    '''
-    def notify(self, check):
-        '''A method that sends a telegram message to the user's telegram account.
-        The method uses a bot with the url specified to send a message to the users
-        account.
-        '''
-        url = "https://api.telegram.org/bot%s/sendmessage"% settings.TELEGRAM_AUTH_TOKEN
-        description = tmpl("sms_description.html", check=check)
-        self.post(url, json={
-            "chat_id": self.channel.telegram_id,
-            "text": description,
-            "parse_mode": "html"})
-            

@@ -25,7 +25,7 @@ DEFAULT_GRACE = td(hours=1)
 CHANNEL_KINDS = (("email", "Email"), ("webhook", "Webhook"),
                  ("hipchat", "HipChat"),
                  ("slack", "Slack"), ("pd", "PagerDuty"), ("po", "Pushover"),
-                 ("victorops", "VictorOps"), ("sms", "SMS"), ("telegram", "Telegram"))
+                 ("victorops", "VictorOps"))
 
 PO_PRIORITIES = {
     -2: "lowest",
@@ -165,7 +165,6 @@ class Channel(models.Model):
     value = models.TextField(blank=True)
     email_verified = models.BooleanField(default=False)
     checks = models.ManyToManyField(Check)
-    telegram_id = models.IntegerField(default=0)
 
     def assign_all_checks(self):
         checks = Check.objects.filter(user=self.user)
@@ -200,10 +199,6 @@ class Channel(models.Model):
             return transports.Pushbullet(self)
         elif self.kind == "po":
             return transports.Pushover(self)
-        elif self.kind == "sms":
-            return transports.SMS(self)
-        elif self.kind == "telegram":
-            return transports.Telegram(self)
         else:
             raise NotImplementedError("Unknown channel kind: %s" % self.kind)
 
