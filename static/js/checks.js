@@ -124,15 +124,15 @@ $(function () {
     });
 
 
-    $("#my-checks-tags button").click(function() {
+    $("#my-checks-tags select option").click(function() {
         // .active has not been updated yet by bootstrap code,
         // so cannot use it
-        $(this).toggleClass('checked');
+        $(this).toggleClass('selected');
 
         // Make a list of currently checked tags:
-        var checked = [];
-        $("#my-checks-tags button.checked").each(function(index, el) {
-            checked.push(el.textContent);
+        var selected = [];
+        $("#my-checks-tags select option").each(function(index, el) {
+            selected.push(el.textContent);
         });
 
         // No checked tags: show all

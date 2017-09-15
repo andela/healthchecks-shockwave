@@ -11,7 +11,7 @@ class UpdateNameTestCase(BaseTestCase):
 
     def test_it_works(self):
         url = "/checks/%s/name/" % self.check.code
-        payload = {"name": "Alice Was Here"}
+        payload = {"name": "Alice Was Here", "department": "Sales"}
 
         self.client.login(username="alice@example.org", password="password")
         r = self.client.post(url, data=payload)
@@ -22,7 +22,7 @@ class UpdateNameTestCase(BaseTestCase):
 
     def test_team_access_works(self):
         url = "/checks/%s/name/" % self.check.code
-        payload = {"name": "Bob Was Here"}
+        payload = {"name": "Bob Was Here", "department": "Sales"}
 
         # Logging in as bob, not alice. Bob has team access so this
         # should work.
@@ -59,7 +59,7 @@ class UpdateNameTestCase(BaseTestCase):
 
     def test_it_sanitizes_tags(self):
         url = "/checks/%s/name/" % self.check.code
-        payload = {"tags": "  foo  bar\r\t \n  baz \n"}
+        payload = {"tags": "  foo  bar\r\t \n  baz \n", "department": "Sales"}
 
         self.client.login(username="alice@example.org", password="password")
         self.client.post(url, data=payload)

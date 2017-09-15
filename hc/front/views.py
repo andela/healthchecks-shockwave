@@ -14,9 +14,9 @@ from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.utils.six.moves.urllib.parse import urlencode
 from hc.api.decorators import uuid_or_400
-from hc.api.models import DEFAULT_GRACE, DEFAULT_TIMEOUT, Channel, Check, Ping
+from hc.api.models import DEFAULT_GRACE, DEFAULT_TIMEOUT, Channel, Check, Ping, Department
 from hc.front.forms import (AddChannelForm, AddWebhookForm, NameTagsForm,
-                            TimeoutForm)
+                            TimeoutForm, AddDepartmentForm)
 
 
 # from itertools recipes:
@@ -29,6 +29,7 @@ def pairwise(iterable):
 
 @login_required
 def my_checks(request):
+    departments = list(Department.objects.all())
     q = Check.objects.filter(user=request.team.user).order_by("created")
     checks = list(q)
 
@@ -48,38 +49,7 @@ def my_checks(request):
                 grace_tags.add(tag)
 
     ctx = {
-        "page": "checks",
-        "checks": checks,
-        "now": timezone.now(),
-        "tags": counter.most_common(),
-        "down_tags": down_tags,
-        "grace_tags": grace_tags,
-        "ping_endpoint": settings.PING_ENDPOINT
-    }
-
-    return render(request, "front/my_checks.html", ctx)
-
-@login_required
-def my_critical_checks(request):
-    q = Check.objects.filter(user=request.team.user).order_by("created")
-    checks = list(q)
-
-    counter = Counter()
-    down_tags, grace_tags = set(), set()
-    for check in checks:
-        status = check.get_status()
-        for tag in check.tags_list():
-            if tag == "":
-                continue
-
-            counter[tag] += 1
-
-            if status == "down":
-                down_tags.add(tag)
-            elif check.in_grace_period():
-                grace_tags.add(tag)
-
-    ctx = {
+        "departments": departments,
         "page": "checks",
         "checks": checks,
         "now": timezone.now(),
@@ -166,6 +136,17 @@ def add_check(request):
 
 
 @login_required
+def add_department(request):
+    assert request.method == "POST"
+    form = AddDepartmentForm(request.POST)
+
+    department = Department()
+    department.department_name = form.data['department_name']
+    department.save()
+
+    return redirect("hc-checks")
+
+@login_required
 @uuid_or_400
 def update_name(request, code):
     assert request.method == "POST"
@@ -178,6 +159,7 @@ def update_name(request, code):
     if form.is_valid():
         check.name = form.cleaned_data["name"]
         check.tags = form.cleaned_data["tags"]
+        check.department = form.data["department"]
         check.save()
 
     return redirect("hc-checks")

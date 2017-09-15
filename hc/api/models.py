@@ -52,6 +52,7 @@ class Check(models.Model):
     last_ping = models.DateTimeField(null=True, blank=True)
     alert_after = models.DateTimeField(null=True, blank=True, editable=False)
     status = models.CharField(max_length=6, choices=STATUSES, default="new")
+    department = models.CharField(max_length=50, blank=False, default="None")
 
     def name_then_code(self):
         if self.name:
@@ -107,6 +108,9 @@ class Check(models.Model):
     def tags_list(self):
         return [t.strip() for t in self.tags.split(" ") if t.strip()]
 
+    def get_department(self):
+        return [d.strip() for d in self.department.split(" ") if d.strip()]
+
     def to_dict(self):
         pause_rel_url = reverse("hc-api-pause", args=[self.code])
 
@@ -130,6 +134,9 @@ class Check(models.Model):
 
         return result
 
+
+class Department(models.Model):
+    department_name = models.CharField(max_length=50, blank=False, default="None")
 
 class Ping(models.Model):
     n = models.IntegerField(null=True)
