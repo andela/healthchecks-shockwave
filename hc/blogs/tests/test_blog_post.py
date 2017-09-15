@@ -29,6 +29,8 @@ class BlogTestCase(BaseTestCase):
 		self.assertEquals(len(post), 3)
 		response = self.client.get(self.URL+'post/' + post_id +'/')
 		self. assertEquals(response.status_code, 200)
+		print(type(response.content))
+		self.assertIn("Nairobi",response.content.decode('ascii'))
 
 	def test_update_blog_post(self):
 		post = BlogPost.objects.first()
