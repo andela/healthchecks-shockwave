@@ -18,6 +18,7 @@ from hc.api.models import DEFAULT_GRACE, DEFAULT_TIMEOUT, Channel, Check, Ping
 from hc.front.forms import (AddChannelForm, AddWebhookForm, NameTagsForm,
                             TimeoutForm)
 from hc.accounts.models import Profile, Member
+from hc.lib.sms import TwilioSendSms		
 
 # from itertools recipes:
 def pairwise(iterable):
