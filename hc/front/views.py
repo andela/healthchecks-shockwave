@@ -19,6 +19,27 @@ from hc.front.forms import (AddChannelForm, AddWebhookForm, NameTagsForm,
                             TimeoutForm)
 
 
+class GraceAndDownTags(object):
+    down_tags, grace_tags = set(), set()
+    counter = Counter()
+
+    def grace_and_down_tags(self, check):
+        """
+        Method for getting the grace and down tags
+        """
+        status = check.get_status()
+        for tag in check.tags_list():
+            if tag == "":
+                continue
+
+            self.counter[tag] += 1
+
+            if status == "down":
+                self.down_tags.add(tag)
+            elif check.in_grace_period():
+                self.grace_tags.add(tag)
+
+
 # from itertools recipes:
 def pairwise(iterable):
     "s -> (s0,s1), (s1,s2), (s2, s3), ..."
@@ -31,29 +52,18 @@ def pairwise(iterable):
 def my_checks(request):
     mychecks = Check.objects.filter(user=request.team.user).order_by("created")
     checks = list(mychecks)
-
-    counter = Counter()
-    down_tags, grace_tags = set(), set()
+    tags = GraceAndDownTags()
     for check in checks:
         status = check.get_status()
-        for tag in check.tags_list():
-            if tag == "":
-                continue
-
-            counter[tag] += 1
-
-            if status == "down":
-                down_tags.add(tag)
-            elif check.in_grace_period():
-                grace_tags.add(tag)
+        tags.grace_and_down_tags(check)
 
     ctx = {
         "page": "checks",
         "checks": checks,
         "now": timezone.now(),
-        "tags": counter.most_common(),
-        "down_tags": down_tags,
-        "grace_tags": grace_tags,
+        "tags": tags.counter.most_common(),
+        "down_tags": tags.down_tags,
+        "grace_tags": tags.grace_tags,
         "ping_endpoint": settings.PING_ENDPOINT
     }
 
@@ -64,33 +74,22 @@ def my_checks(request):
 def my_failed_checks(request):
     mychecks = Check.objects.filter(user=request.team.user).order_by("created")
     checks = list(mychecks)
-
-    counter = Counter()
     failed_checks = []
-    down_tags, grace_tags = set(), set()
+    tags = GraceAndDownTags()
+
     for check in checks:
         if check.get_status() == "down":
             failed_checks.append(check)
 
-        status = check.get_status()
-        for tag in check.tags_list():
-            if tag == "":
-                continue
-
-            counter[tag] += 1
-
-            if status == "down":
-                down_tags.add(tag)
-            elif check.in_grace_period():
-                grace_tags.add(tag)
+        tags.grace_and_down_tags(check)
 
     ctx = {
         "page": "failed-checks",
         "checks": failed_checks,
         "now": timezone.now(),
-        "tags": counter.most_common(),
-        "down_tags": down_tags,
-        "grace_tags": grace_tags,
+        "tags": tags.counter.most_common(),
+        "down_tags": tags.down_tags,
+        "grace_tags": tags.grace_tags,
         "ping_endpoint": settings.PING_ENDPOINT
     }
 
