@@ -21,7 +21,7 @@ class AddSmsTestCase(BaseTestCase):
         get_integration_page = self.client.get("/integrations/")
         self.assertContains(get_integration_page, "254722000000")
 
-    def test_number_check(self):
+    def test_invalid_number_entries(self):
         '''A method that tests that passing invalid data to the form for the sms
         will not lead to creation of a channel. Arguments to be rejected are
         strings -- the form should accept only numbers.
