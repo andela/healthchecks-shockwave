@@ -1,7 +1,7 @@
 '''A module to test adding of checks on the front end'''
 from hc.api.models import Check
 from hc.test import BaseTestCase
-from hc.accounts.models import Member
+from hc.accounts.models import Member, Profile
 from django.contrib.auth.models import User
 
 
