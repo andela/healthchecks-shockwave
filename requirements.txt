@@ -7,3 +7,11 @@ futures==3.0.3
 premailer==2.9.6
 psycopg2==2.6.1
 requests==2.9.1
+mock==2.0.0
+coverage==4.4.1
+gunicorn==19.7.1
+dj-database-url==0.4.2
+whitenoise==3.3.0
+python-http-client==3.0.0
+sendgrid==3.6.5
+sendgrid-django==4.0.4
