@@ -3,7 +3,7 @@ from django.utils import timezone
 from taggit.models import Tag
 from taggit.managers import TaggableManager
 
-class Post(models.Model):
+class BlogPost(models.Model):
     author = models.ForeignKey('auth.User')
     title = models.CharField(max_length=200)
     text = models.TextField()
@@ -21,4 +21,4 @@ class Post(models.Model):
         return self.title
 
     def get_tag_names(self, pk):
-        return Tag.objects.filter(post=pk)
+        return Tag.objects.filter(blogpost=pk)

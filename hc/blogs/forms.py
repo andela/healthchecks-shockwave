@@ -1,17 +1,12 @@
 from django import forms
 from django_summernote.widgets import SummernoteWidget, SummernoteInplaceWidget
 
-from .models import Post
+from .models import BlogPost
 
-class PostForm(forms.ModelForm):
+class BlogPostForm(forms.ModelForm):
     class Meta:
-        model = Post
+        model = BlogPost
         fields = ('title', 'tags', 'text')
         widgets={
         	'text': SummernoteWidget()
         }
-
-class DeletePostForm(forms.ModelForm):
-	class Meta:
-		model = Post
-		fields = []
