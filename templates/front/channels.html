@@ -90,10 +90,14 @@
                 <a
                     class="edit-checks"
                     href="{% url 'hc-channel-checks' ch.code %}">
-                    {% if request.team.user.email == request.user.email %}
-                    {{ ch.n_checks }} of {{ num_checks }}
+                    {% if request.team.user == request.user %}
+                        {{ ch.n_checks }} of {{ num_checks }}
                     {% else %}
-                    {{ check_count }} of {{ num_checks }}
+                    {% for chan, count in ch_assigned %}
+                        {% if chan == ch %}
+                            {{ count }} of {{ num_checks }}
+                        {% endif %}
+                    {% endfor %}
                     {% endif %}
                 </a>
             </td>
