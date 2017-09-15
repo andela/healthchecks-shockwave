@@ -151,6 +151,7 @@ class Check(models.Model):
         Checks if ping is occuring often and sends out an alert if it is
         """
         if self.__before_reverse_grace_period():
+            self.status = "often"
             self.send_alert()
             return "often"
         if self.status == "often":
