@@ -21,7 +21,7 @@ DEBUG = True
 ALLOWED_HOSTS = []
 DEFAULT_FROM_EMAIL = 'healthchecks@example.org'
 USE_PAYMENTS = False
-SG_KEY = os.environ.get("SG_KEY") or "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"
+SG_KEY = os.environ.get("SG_KEY")
 
 
 INSTALLED_APPS = (
