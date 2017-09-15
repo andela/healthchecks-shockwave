@@ -54,6 +54,3 @@ class SwitchTeamTestCase(BaseTestCase):
         self.client.login(username="tony@yes.com", password="1111")
         def_page = self.client.get(url2)
         self.assertContains(def_page, "alice@example.org")
-        response = self.client.get(url, follow=True)
-        self.assertEqual(200, response.status_code)
-        
