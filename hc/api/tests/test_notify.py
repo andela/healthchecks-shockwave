@@ -67,9 +67,6 @@ class NotifyTestCase(BaseTestCase):
 
     @patch("hc.api.transports.requests.request")
     def test_webhooks_dollarsign_escaping(self, mock_get):
-        # If name or tag contains what looks like a variable reference,
-        # that should be left alone:
-
         template = "http://host/$NAME"
         self._setup_data("webhook", template)
         self.check.name = "$TAG1"
@@ -122,11 +119,9 @@ class NotifyTestCase(BaseTestCase):
         n = Notification.objects.get()
         self.assertEqual(n.error, "")
 
-        # Check is up, payments are enabled, and the user does not have team
-        # access: the email should contain upgrade note
         message = mail.outbox[0]
         html, _ = message.alternatives[0]
-        assert "/pricing/" in html
+        self.assertIn("/pricing/",html)
 
     @patch("hc.api.transports.requests.request")
     def test_pd(self, mock_post):
@@ -134,7 +129,7 @@ class NotifyTestCase(BaseTestCase):
         mock_post.return_value.status_code = 200
 
         self.channel.notify(self.check)
-        assert Notification.objects.count() == 1
+        self.assertEqual(Notification.objects.count(), 1)
 
         args, kwargs = mock_post.call_args
         json = kwargs["json"]
@@ -146,7 +141,7 @@ class NotifyTestCase(BaseTestCase):
         mock_post.return_value.status_code = 200
 
         self.channel.notify(self.check)
-        assert Notification.objects.count() == 1
+        self.assertEqual(Notification.objects.count(), 1)
 
         args, kwargs = mock_post.call_args
         json = kwargs["json"]
@@ -161,7 +156,7 @@ class NotifyTestCase(BaseTestCase):
         mock_post.return_value.status_code = 200
 
         self.channel.notify(self.check)
-        assert Notification.objects.count() == 1
+        self.assertEqual(Notification.objects.count(), 1)
 
         args, kwargs = mock_post.call_args
         self.assertEqual(args[1], "123")
@@ -204,7 +199,7 @@ class NotifyTestCase(BaseTestCase):
         mock_post.return_value.status_code = 200
 
         self.channel.notify(self.check)
-        assert Notification.objects.count() == 1
+        self.assertEqual(Notification.objects.count(), 1)
 
         args, kwargs = mock_post.call_args
         json = kwargs["data"]
@@ -216,10 +211,20 @@ class NotifyTestCase(BaseTestCase):
         mock_post.return_value.status_code = 200
 
         self.channel.notify(self.check)
-        assert Notification.objects.count() == 1
+        self.assertEqual(Notification.objects.count(), 1)
 
         args, kwargs = mock_post.call_args
         json = kwargs["json"]
         self.assertEqual(json["message_type"], "CRITICAL")
 
-    ### Test that the web hooks handle connection errors and error 500s
+    @patch("hc.api.transports.requests.request")
+    def test_web_hooks_handle_connection(self, mock_get):
+        self._setup_data("webhook","http://test_url")
+        mock_get.return_value.status_code = 500
+
+        self.channel.notify(self.check)
+
+        notification =  Notification.objects.get()
+        self.assertEqual(notification.error, "Received status code 500")
+        
+
