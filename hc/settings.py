@@ -133,6 +133,7 @@ STATICFILES_FINDERS = (
 )
 COMPRESS_OFFLINE = True
 
+# Email Configurations
 EMAIL_BACKEND = "djmail.backends.default.EmailBackend"
 
 # Slack integration -- override these in local_settings
