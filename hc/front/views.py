@@ -20,7 +20,6 @@ from hc.front.forms import (AddChannelForm, AddWebhookForm, NameTagsForm,
 from .models import Faq, Video
 from hc.lib.sms import TwilioSendSms
 
-
 # from itertools recipes:
 def pairwise(iterable):
     "s -> (s0,s1), (s1,s2), (s2, s3), ..."
