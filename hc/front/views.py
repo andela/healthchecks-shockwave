@@ -17,12 +17,8 @@ from hc.api.decorators import uuid_or_400
 from hc.api.models import DEFAULT_GRACE, DEFAULT_TIMEOUT, Channel, Check, Ping
 from hc.front.forms import (AddChannelForm, AddWebhookForm, NameTagsForm,
                             TimeoutForm)
-<<<<<<< HEAD
 from .models import Faq, Video
-=======
 from hc.lib.sms import TwilioSendSms
-
->>>>>>> development
 
 
 # from itertools recipes:
@@ -618,16 +614,13 @@ def add_pushover(request):
     }
     return render(request, "integrations/add_pushover.html", ctx)
 
-
 @login_required
 def add_victorops(request):
     ctx = {"page": "channels"}
     return render(request, "integrations/add_victorops.html", ctx)
 
-
 def privacy(request):
     return render(request, "front/privacy.html", {})
-
 
 def terms(request):
     return render(request, "front/terms.html", {})
@@ -643,6 +636,7 @@ def faqs(request):
 def videos(request):
     videos = Video.objects.all().order_by('created_date')
     return render(request, 'front/videos.html', {'videos': videos})
+
 def single_video(request, pk):
     video = get_object_or_404(Video, pk=pk)
     return render(request, 'front/single_video.html', {'video' : video})
