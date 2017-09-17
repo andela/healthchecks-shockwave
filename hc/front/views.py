@@ -600,7 +600,7 @@ def terms(request):
     return render(request, "front/terms.html", {})
 
 # Helpcenter Views
-def helpcenter(request):`
+def helpcenter(request):
     return render(request, "front/help_center.html", {})
 
 def faqs(request):
