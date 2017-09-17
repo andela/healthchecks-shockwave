@@ -27,7 +27,6 @@ def pairwise(iterable):
     next(b, None)
     return zip(a, b)
 
-
 @login_required
 def my_checks(request):
     mychecks = Check.objects.filter(user=request.team.user).order_by("created")
@@ -59,7 +58,6 @@ def my_checks(request):
     }
 
     return render(request, "front/my_checks.html", ctx)
-
 
 @login_required
 def my_failed_checks(request):
@@ -97,7 +95,6 @@ def my_failed_checks(request):
 
     return render(request, "front/my_failed_checks.html", ctx)
 
-
 def _welcome_check(request):
     check = None
     if "welcome_code" in request.session:
@@ -110,7 +107,6 @@ def _welcome_check(request):
         request.session["welcome_code"] = str(check.code)
 
     return check
-
 
 def index(request):
     if request.user.is_authenticated:
@@ -127,7 +123,6 @@ def index(request):
 
     return render(request, "front/welcome.html", ctx)
 
-
 def docs(request):
     check = _welcome_check(request)
 
@@ -141,7 +136,6 @@ def docs(request):
 
     return render(request, "front/docs.html", ctx)
 
-
 def docs_api(request):
     ctx = {
         "page": "docs",
@@ -154,10 +148,8 @@ def docs_api(request):
 
     return render(request, "front/docs_api.html", ctx)
 
-
 def about(request):
     return render(request, "front/about.html", {"page": "about"})
-
 
 @login_required
 def add_check(request):
@@ -169,7 +161,6 @@ def add_check(request):
     check.assign_all_channels()
 
     return redirect("hc-checks")
-
 
 @login_required
 @uuid_or_400
@@ -188,7 +179,6 @@ def update_name(request, code):
 
     return redirect("hc-checks")
 
-
 @login_required
 @uuid_or_400
 def update_timeout(request, code):
@@ -206,7 +196,6 @@ def update_timeout(request, code):
 
     return redirect("hc-checks")
 
-
 @login_required
 @uuid_or_400
 def pause(request, code):
@@ -221,7 +210,6 @@ def pause(request, code):
 
     return redirect("hc-checks")
 
-
 @login_required
 @uuid_or_400
 def remove_check(request, code):
@@ -234,7 +222,6 @@ def remove_check(request, code):
     check.delete()
 
     return redirect("hc-checks")
-
 
 @login_required
 @uuid_or_400
@@ -287,7 +274,6 @@ def log(request, code):
 
     return render(request, "front/log.html", ctx)
 
-
 @login_required
 def channels(request):
     if request.method == "POST":
@@ -327,7 +313,6 @@ def channels(request):
         "enable_pushover": settings.PUSHOVER_API_TOKEN is not None
     }
     return render(request, "front/channels.html", ctx)
-
 
 def do_add_channel(request, data):
     '''A method that adds a channel and assigns it all the checks. For email
@@ -387,7 +372,6 @@ def add_sms(request):
     '''A method that renders a page for adding sms.'''
     return render(request, "integrations/add_sms.html", {'error_message':""})
 
-
 @login_required
 @uuid_or_400
 def channel_checks(request, code):
@@ -406,7 +390,6 @@ def channel_checks(request, code):
 
     return render(request, "front/channel_checks.html", ctx)
 
-
 @uuid_or_400
 def verify_email(request, code, token):
     channel = get_object_or_404(Channel, code=code)
@@ -416,7 +399,6 @@ def verify_email(request, code, token):
         return render(request, "front/verify_email_success.html")
 
     return render(request, "bad_link.html")
-
 
 @login_required
 @uuid_or_400
@@ -432,12 +414,10 @@ def remove_channel(request, code):
 
     return redirect("hc-channels")
 
-
 @login_required
 def add_email(request):
     ctx = {"page": "channels"}
     return render(request, "integrations/add_email.html", ctx)
-
 
 @login_required
 def add_webhook(request):
@@ -462,7 +442,6 @@ def add_pd(request):
     ctx = {"page": "channels"}
     return render(request, "integrations/add_pd.html", ctx)
 
-
 def add_slack(request):
     if not settings.SLACK_CLIENT_ID and not request.user.is_authenticated:
         return redirect("hc-login")
@@ -472,7 +451,6 @@ def add_slack(request):
         "slack_client_id": settings.SLACK_CLIENT_ID
     }
     return render(request, "integrations/add_slack.html", ctx)
-
 
 @login_required
 def add_slack_btn(request):
@@ -501,12 +479,10 @@ def add_slack_btn(request):
 
     return redirect("hc-channels")
 
-
 @login_required
 def add_hipchat(request):
     ctx = {"page": "channels"}
     return render(request, "integrations/add_hipchat.html", ctx)
-
 
 @login_required
 def add_pushbullet(request):
@@ -551,7 +527,6 @@ def add_pushbullet(request):
         "authorize_url": authorize_url
     }
     return render(request, "integrations/add_pushbullet.html", ctx)
-
 
 @login_required
 def add_pushover(request):
@@ -625,7 +600,7 @@ def terms(request):
     return render(request, "front/terms.html", {})
 
 # Helpcenter Views
-def helpcenter(request):
+def helpcenter(request):`
     return render(request, "front/help_center.html", {})
 
 def faqs(request):
