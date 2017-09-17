@@ -7,14 +7,7 @@ dj-database-url==0.4.2
 Django==1.10
 django-appconf==1.0.1
 django-compressor==2.1
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 django-embed-video==1.1.2
->>>>>>> Feature(150627370)Help Center. Add django-video-embed to requirements.txt
-=======
-django-embed-video==1.1.2
->>>>>>> 450f6ba45c5b4daa0a31b32e08962e7bacd2662b
 django-js-asset==0.1.1
 django-ses-backend==0.1.1
 django-summernote==0.8.8.1
@@ -31,40 +24,23 @@ pbr==3.1.1
 premailer==2.9.6
 psycopg2==2.6.1
 pylint==1.7.2
-<<<<<<< HEAD
-<<<<<<< HEAD
 rcssmin==1.0.6
 requests==2.9.1
 rjsmin==1.0.12
 six==1.10.0
 whitenoise==3.3.0
 wrapt==1.10.11
-=======
->>>>>>> Feature(150627370)Help Center. Add django-video-embed to requirements.txt
-=======
->>>>>>> 450f6ba45c5b4daa0a31b32e08962e7bacd2662b
 python-http-client==3.0.0
 rcssmin==1.0.6
 requests==2.9.1
 rjsmin==1.0.12
 selenium==3.5.0
 sendgrid==3.6.5
-<<<<<<< HEAD
-<<<<<<< HEAD
-sendgrid-django==4.0.4
-=======
 sendgrid-django==4.0.4
 six==1.10.0
 whitenoise==3.3.0
 wrapt==1.10.11
-<<<<<<< HEAD
->>>>>>> Feature(150627370)Help Center. Add django-video-embed to requirements.txt
-=======
->>>>>>> 450f6ba45c5b4daa0a31b32e08962e7bacd2662b
-=======
 sendgrid-django==4.0.4
 twilio==6.6.2
 PySocks==1.6.7
 PyJWT==1.5.3
-sendgrid-django==4.0.4
->>>>>>> development
