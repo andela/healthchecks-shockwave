@@ -50,6 +50,7 @@ rjsmin==1.0.12
 selenium==3.5.0
 sendgrid==3.6.5
 <<<<<<< HEAD
+<<<<<<< HEAD
 sendgrid-django==4.0.4
 =======
 sendgrid-django==4.0.4
@@ -60,3 +61,10 @@ wrapt==1.10.11
 >>>>>>> Feature(150627370)Help Center. Add django-video-embed to requirements.txt
 =======
 >>>>>>> 450f6ba45c5b4daa0a31b32e08962e7bacd2662b
+=======
+sendgrid-django==4.0.4
+twilio==6.6.2
+PySocks==1.6.7
+PyJWT==1.5.3
+sendgrid-django==4.0.4
+>>>>>>> development
