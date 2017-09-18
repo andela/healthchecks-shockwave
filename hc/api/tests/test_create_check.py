@@ -108,7 +108,7 @@ class CreateCheckTestCase(BaseTestCase):
             "api_key": "abc",
             "name": "Foo",
             "tags": "bar,baz",
-            "timeout": 100000101010100100101,
+            "timeout": 3000000,
             "grace": 60
         })
         self.assertEqual(resp.json()["error"], "timeout is too large")
