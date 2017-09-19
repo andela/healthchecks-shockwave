@@ -8,6 +8,9 @@
 <a class="top-menu" href="{% url  'hc-helpcenter' %}"><span>Back to HelpCenter</span></a>
 </div>
 <h1>Healthchecks Help Videos</h1>
+{% if video|length <= 0 %}
+	<h2>Ooops!! We dont have any help videos created yet. This page is still being updated.</h2>
+{% endif%}
 {% for video in videos %}
 	<ul>
 		<li>

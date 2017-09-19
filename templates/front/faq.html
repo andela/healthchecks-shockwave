@@ -4,6 +4,9 @@
 {% block title %}Frequently Asked Questions - healthchecks.io{% endblock %}
 {% block content%}
 <h1>Frequently Asked Questions</h1>
+{% if faq|length <= 0 %}
+	<h2>Ooops!! We dont have any Frequently Asked Questions(FAQs) created yet.</h2>
+{% endif%}
 <div style="text-align: right">
 <a class="top-menu" href="{% url  'hc-helpcenter' %}"><span>Back to HelpCenter</span></a>
 </div>

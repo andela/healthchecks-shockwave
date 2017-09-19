@@ -601,16 +601,20 @@ def terms(request):
 
 # Helpcenter Views
 def helpcenter(request):
+    """Displays list of healthchecks help resources"""
     return render(request, "front/help_center.html", {})
 
 def faqs(request):
+    """Displays Frequently asked questions and answers"""
     faqs = Faq.objects.all().order_by('created_date')
     return render(request, 'front/faq.html', {'faqs' : faqs})
 
 def videos(request):
+    """Displays list of healthchecks help videos"""
     videos = Video.objects.all().order_by('created_date')
     return render(request, 'front/videos.html', {'videos': videos})
 
 def single_video(request, pk):
+    """Displays single page with video"""
     video = get_object_or_404(Video, pk=pk)
     return render(request, 'front/single_video.html', {'video' : video})
