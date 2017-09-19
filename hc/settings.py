@@ -21,8 +21,6 @@ DEBUG = True
 ALLOWED_HOSTS = []
 DEFAULT_FROM_EMAIL = 'healthchecks@example.org'
 USE_PAYMENTS = False
-SG_KEY = os.environ.get("SG_KEY")
-
 
 INSTALLED_APPS = (
     'django.contrib.admin',
@@ -34,11 +32,14 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'compressor',
     'djmail',
+    'taggit',
+    'django_summernote',
 
     'hc.accounts',
     'hc.api',
     'hc.front',
-    'hc.payments'
+    'hc.payments',
+    'hc.blogs',
 )
 
 MIDDLEWARE = (
@@ -113,7 +114,7 @@ if os.environ.get("DB") == "mysql":
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Nairobi'
 
 USE_I18N = True
 
@@ -135,8 +136,7 @@ STATICFILES_FINDERS = (
 COMPRESS_OFFLINE = True
 
 # Email Configurations
-EMAIL_BACKEND = "sgbackend.SendGridBackend"
-SENDGRID_API_KEY = SG_KEY
+EMAIL_BACKEND = "djmail.backends.default.EmailBackend"
 
 # Slack integration -- override these in local_settings
 SLACK_CLIENT_ID = None
@@ -151,6 +151,23 @@ PUSHOVER_EMERGENCY_EXPIRATION = 86400
 # Pushbullet integration -- override these in local_settings
 PUSHBULLET_CLIENT_ID = None
 PUSHBULLET_CLIENT_SECRET = None
+
+#Setting Taggit to be case insenstive
+TAGGIT_CASE_INSENSITIVE = True
+
+#Summernote media Locations
+MEDIA_URL = '/static/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'static/media/')
+
+#Twilio integration -- override those in local_settings
+TWILIO_ACCOUNT_SID = None
+TWILIO_AUTH_TOKEN = None
+TWILIO_NUMBER = None
+TWILIO_VERIFY_NUMBER = None
+
+#Telegram integration -- override item on local_settings
+TELEGRAM_AUTH_TOKEN = None
+TELEGRAM_ID = None
 
 if os.path.exists(os.path.join(BASE_DIR, "hc/local_settings.py")):
     from .local_settings import *
