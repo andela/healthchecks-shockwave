@@ -64,16 +64,16 @@ in development environment.
 
         $ ./manage.py runserver
 
-The site should now be running at `http://localhost:8000`
+The site should now be running at `http://localhost:8080`
 To log into Django administration site as a super user,
-visit `http://localhost:8000/admin`
+visit `http://localhost:8080/admin`
 
 ## Database Configuration
 
 Database configuration is stored in `hc/settings.py` and can be overriden
-in `hc/local_settings.py`. *The default database engine is SQLite. To use
+in `hc/local_settings.py`. The default database engine is SQLite. To use
 PostgreSQL, create `hc/local_settings.py` if it does not exist, and put the
-following in it, changing it as neccessary:*
+following in it, changing it as neccessary:
 
     DATABASES = {
         'default': {
@@ -136,16 +136,13 @@ and the email configuration in `hc/local_settings.py` looks as follows:
 
 healtchecks comes with a `sendalerts` management command, which continuously
 polls database for any checks changing state, and sends out notifications as
-needed. Open a new terminal window and within an activated virtualenv, you can then manually run
+needed. Within an activated virtualenv, you can manually run
 the `sendalerts` command like so:
 
     $ ./manage.py sendalerts
 
 In a production setup, you will want to run this command from a process
 manager like [supervisor](http://supervisord.org/) or systemd.
-
-* Verify emails via the admin panel in order to send email notifications via
-the terminal
 
 ## Database Cleanup
 
@@ -191,21 +188,6 @@ test them on a copy of your database, not on the live database right away.
 In a production setup, you should also have regular, automated database
 backups set up.
 
-## Testing
-* In order to execute tests, run:
-    ```
-    $ ./manage.py test
-    ```
-To get information on the test coverage:
-* Run the tests with coverage
-    ```
-    $ coverage run --source hc manage.py test
-    ```
-* Get the report for the tests
-    ```
-    $ coverage report
-    ```
-
 ## Integrations
 
 ### Pushover
@@ -217,8 +199,3 @@ To enable Pushover integration, you will need to:
   subscription type
 * add the application token and subscription URL to `hc/local_settings.py`, as
   `PUSHOVER_API_TOKEN` and `PUSHOVER_SUBSCRIPTION_URL`
-
-## Contributions
-
-You have made it this far and you would love to contribute.
-Visit [this link](https://docs.google.com/a/andela.com/document/d/1KIDJUDRgGQrDd-irwK_xjllIOCOvUjITJ1LmErv4kZg/edit?usp=sharing) for guidelines on recommended best practices for this project

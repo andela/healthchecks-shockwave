@@ -1,7 +1,7 @@
 from collections import Counter
 from datetime import timedelta as td
 from itertools import tee
-import json
+
 import requests
 from django.conf import settings
 from django.contrib import messages
@@ -17,9 +17,7 @@ from hc.api.decorators import uuid_or_400
 from hc.api.models import DEFAULT_GRACE, DEFAULT_TIMEOUT, Channel, Check, Ping
 from hc.front.forms import (AddChannelForm, AddWebhookForm, NameTagsForm,
                             TimeoutForm)
-from hc.lib.sms import TwilioSendSms
-
-
+from hc.accounts.models import Profile, Member
 
 # from itertools recipes:
 def pairwise(iterable):
@@ -31,12 +29,27 @@ def pairwise(iterable):
 
 @login_required
 def my_checks(request):
-    mychecks = Check.objects.filter(user=request.team.user).order_by("created")
-    checks = list(mychecks)
+    q = Check.objects.filter(user=request.team.user).order_by("created")
+    checks = list(q)
+
+    team_owner = Profile.objects.get(user=request.team.user)
+    checks_buffer = []
+
+    if request.team.user == request.user:
+        checks_buffer = checks
+    else:
+        team_info = Member.objects.get(team=team_owner, user=request.user)
+        checks_assigned = str(team_info.checks_assigned)
+        checks_assigned = checks_assigned.split(" ")
+        for scheck in checks:
+            for check_assigned in checks_assigned:
+                str_scheck = str(scheck.code)
+                if str_scheck == check_assigned:
+                    checks_buffer.append(scheck)
 
     counter = Counter()
     down_tags, grace_tags = set(), set()
-    for check in checks:
+    for check in checks_buffer:
         status = check.get_status()
         for tag in check.tags_list():
             if tag == "":
@@ -51,7 +64,7 @@ def my_checks(request):
 
     ctx = {
         "page": "checks",
-        "checks": checks,
+        "checks": checks_buffer,
         "now": timezone.now(),
         "tags": counter.most_common(),
         "down_tags": down_tags,
@@ -60,43 +73,6 @@ def my_checks(request):
     }
 
     return render(request, "front/my_checks.html", ctx)
-
-
-@login_required
-def my_failed_checks(request):
-    mychecks = Check.objects.filter(user=request.team.user).order_by("created")
-    checks = list(mychecks)
-
-    counter = Counter()
-    failed_checks = []
-    down_tags, grace_tags = set(), set()
-    for check in checks:
-        if check.get_status() == "down":
-            failed_checks.append(check)
-
-        status = check.get_status()
-        for tag in check.tags_list():
-            if tag == "":
-                continue
-
-            counter[tag] += 1
-
-            if status == "down":
-                down_tags.add(tag)
-            elif check.in_grace_period():
-                grace_tags.add(tag)
-
-    ctx = {
-        "page": "failed-checks",
-        "checks": failed_checks,
-        "now": timezone.now(),
-        "tags": counter.most_common(),
-        "down_tags": down_tags,
-        "grace_tags": grace_tags,
-        "ping_endpoint": settings.PING_ENDPOINT
-    }
-
-    return render(request, "front/my_failed_checks.html", ctx)
 
 
 def _welcome_check(request):
@@ -167,6 +143,14 @@ def add_check(request):
     check = Check(user=request.team.user)
     check.save()
 
+    team_owner = Profile.objects.get(user=request.team.user)
+    if request.team.user.email != request.user.email:
+        team_info = Member.objects.get(team=team_owner, user=request.user)
+        checks_assigned = str(team_info.checks_assigned)
+        str_check = str(check.code)
+        team_info.checks_assigned = (checks_assigned + str_check + " ")
+        team_info.save()
+
     check.assign_all_channels()
 
     return redirect("hc-checks")
@@ -233,6 +217,19 @@ def remove_check(request, code):
         return HttpResponseForbidden()
 
     check.delete()
+
+    checks_buffer = ""
+    team_owner = Profile.objects.get(user=request.team.user)
+    team_info = list(Member.objects.filter(team=team_owner))
+    for info in team_info:
+        checks_assigned = str(info.checks_assigned)
+        if checks_assigned != "":
+            checks_assigned = checks_assigned.split(" ")
+            for check_assigned in checks_assigned:
+                if check_assigned != check.code:
+                    checks_buffer = checks_buffer + check_assigned + " "
+            info.checks_assigned = checks_buffer
+            info.save()
 
     return redirect("hc-checks")
 
@@ -318,52 +315,63 @@ def channels(request):
     channels = Channel.objects.filter(user=request.team.user).order_by("created")
     channels = channels.annotate(n_checks=Count("checks"))
 
-    num_checks = Check.objects.filter(user=request.team.user).count()
+
+    q = Check.objects.filter(user=request.team.user).order_by("created")
+    checks = list(q)
+    team_owner = Profile.objects.get(user=request.team.user)
+    checks_buffer = []
+
+    ch_assigned = []
+    if request.team.user == request.user:
+        checks_buffer = checks
+    else:
+        team_infos = list(Member.objects.filter(team=team_owner, user=request.user))
+        for team_info in team_infos:
+            checks_assigned = str(team_info.checks_assigned)
+            checks_assigned = checks_assigned.split(" ")
+            for scheck in checks:
+                for check_assigned in checks_assigned:
+                    str_scheck = str(scheck.code)
+                    if str_scheck == check_assigned:
+                        checks_buffer.append(scheck)
+
+            for c in channels:
+                assigned = set(c.checks.values_list('code', flat=True).distinct())
+                assigned = list(assigned)
+                print(assigned)
+                check_count = 0
+                for a in assigned:
+                    a = str(a)
+                    a = a.strip("")
+                    print(a)
+                    for xcheck in checks_assigned:
+                        if xcheck != "":
+                            if xcheck in a:
+                                print("this one passed the echo test", xcheck)
+                                check_count = check_count + 1
+                    print("this is the count", check_count)
+                ch_assigned.append((c, check_count))
+
+    num_checks = len(checks_buffer)
 
     ctx = {
         "page": "channels",
         "channels": channels,
         "num_checks": num_checks,
         "enable_pushbullet": settings.PUSHBULLET_CLIENT_ID is not None,
-        "enable_pushover": settings.PUSHOVER_API_TOKEN is not None
+        "enable_pushover": settings.PUSHOVER_API_TOKEN is not None,
+        "ch_assigned": ch_assigned
     }
     return render(request, "front/channels.html", ctx)
 
 
 def do_add_channel(request, data):
-    '''A method that adds a channel and assigns it all the checks. For email
-    it sends a verification link. For SMS it validates the users number. For
-    telegram it validates the user's account.
-    '''
     form = AddChannelForm(data)
     if form.is_valid():
         channel = form.save(commit=False)
-        if channel.kind == "sms" and not TwilioSendSms().check_number(data["value"]):
-            number_entered = data["value"]
-            error_message = "The number %s is not a valid number." % number_entered
-            return render(request, "integrations/add_sms.html", {'error_message':error_message})
-        if channel.kind == "telegram":
-            url = "https://api.telegram.org/bot%s/getupdates"% settings.TELEGRAM_AUTH_TOKEN
-            response_data = requests.get(url)
-            json_data = json.loads(response_data.content)
-            counter = 0
-            items = json_data["result"]
-            while counter < len(json_data["result"]):
-                if items[counter]["message"]["from"]["first_name"].lower() == data["first_name"].lower():
-                    if items[counter]["message"]["from"]["last_name"].lower() == data["last_name"].lower():
-                        channel.value = items[counter]["message"]["from"]["first_name"]
-                        channel.telegram_id = int(items[counter]["message"]["from"]["id"])
-                        counter = len(json_data["result"])
-                counter += 1
-            if not channel.value:
-                script1 = "The First and Last Names entered do not match a valid user "
-                script2 = "for the telegram bot. Ensure that you entered the right names"
-                script3 = " and that you pressed the start button on the bot message"
-                e_message = "%s"%(script1+script2+script3)
-                return render(request,
-                              "integrations/add_telegram.html", {"error_message": e_message})
         channel.user = request.team.user
         channel.save()
+
         channel.assign_all_checks()
 
         if channel.kind == "email":
@@ -373,20 +381,11 @@ def do_add_channel(request, data):
     else:
         return HttpResponseBadRequest()
 
-@login_required
-def add_telegram(request):
-    '''A method that renders a page for adding telegram'''
-    return render(request, "integrations/add_telegram.html", {"error_message":""})
 
 @login_required
 def add_channel(request):
     assert request.method == "POST"
     return do_add_channel(request, request.POST)
-
-@login_required
-def add_sms(request):
-    '''A method that renders a page for adding sms.'''
-    return render(request, "integrations/add_sms.html", {'error_message':""})
 
 
 @login_required
@@ -399,8 +398,22 @@ def channel_checks(request, code):
     assigned = set(channel.checks.values_list('code', flat=True).distinct())
     checks = Check.objects.filter(user=request.team.user).order_by("created")
 
+    team_owner = Profile.objects.get(user=request.team.user)
+    checks_buffer = []
+
+    if request.team.user == request.user:
+        checks_buffer = checks
+    else:
+        team_info = Member.objects.get(team=team_owner, user=request.user)
+        checks_assigned = str(team_info.checks_assigned)
+        checks_assigned = checks_assigned.split(" ")
+        for scheck in checks:
+            for check_assigned in checks_assigned:
+                str_scheck = str(scheck.code)
+                if str_scheck == check_assigned:
+                    checks_buffer.append(scheck)
     ctx = {
-        "checks": checks,
+        "checks": checks_buffer,
         "assigned": assigned,
         "channel": channel
     }
