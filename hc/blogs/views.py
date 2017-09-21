@@ -20,28 +20,16 @@ def post_detail(request, pk):
 def post_new(request):
 	if request.method == "POST":
 		form = BlogPostForm(request.POST)
-		if form.is_valid():
-			blogpost = form.save(commit=False)
-			blogpost.author = request.user
-			blogpost.published_date = timezone.now()
-			blogpost.save()
-			form.save_m2m()
-			return redirect('hc-blog-detail', pk=blogpost.pk)
+		form_valid(form, request.user)
 	else:
 		form = BlogPostForm
 	return render(request,'blog/post_new.html', {'form':form})
 
 def post_edit(request, pk):
 	blogpost = get_object_or_404(BlogPost, pk=pk)
-	if request.method == "POST" and blogpost.author == request.user:		
+	if request.method == "POST" and blogpost.author == request.user:
 		form = BlogPostForm(request.POST, instance=blogpost)
-		if form.is_valid():
-			blogpost = form.save(commit=False)
-			blogpost.author = request.user
-			blogpost.published_date = timezone.now()
-			blogpost.save()
-			form.save_m2m()
-			return redirect('hc-blog-detail', pk=blogpost.pk)
+		form_valid(form, request.user)
 	else:
 		form = BlogPostForm(instance=blogpost)
 	return render(request, 'blog/post_edit.html', {'form':form})
@@ -55,3 +43,13 @@ def delete_post(request, pk):
 		return redirect('hc-blog-detail', pk=delete_post.pk)
 
 	return redirect('hc-blog-detail', pk=delete_post.pk)
+
+def form_valid(form, user):
+	if form.is_valid():
+		blogpost = form.save(commit=False)
+		blogpost.author = user
+		blogpost.published_date = timezone.now()
+		blogpost.save()
+		form.save_m2m()
+		return redirect('hc-blog-detail', pk=blogpost.pk)
+
