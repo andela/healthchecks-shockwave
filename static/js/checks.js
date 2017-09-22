@@ -169,6 +169,12 @@ $(function () {
         return false;
     });
 
+    $(".change-priority").click(function(e) {
+        var url = e.target.getAttribute("data-url");
+        $("#pause-form").attr("action", url).submit();
+        return false;
+    });
+
 
     $(".usage-examples").click(function(e) {
         var a = e.target;

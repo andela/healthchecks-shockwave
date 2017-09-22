@@ -9,6 +9,7 @@
             <span class="checks-subline">Grace</span>
         </th>
         <th>Last Ping</th>
+        <th>Priority</th>
         <th></th>
     </tr>
     {% for check in checks %}
@@ -74,6 +75,15 @@
         {% else %}
             Never
         {% endif %}
+        </td>
+        <td>
+            <span>
+                <a class="change-priority"
+                    href="#"
+                    data-url="{% url 'hc-update-priority' check.code %}">
+                    {{ check.priority }}
+                </a>
+            </span>
         </td>
         <td>
             <div class="check-menu dropdown">
