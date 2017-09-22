@@ -40,7 +40,6 @@ jobs:
             curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > "cc-test-reporter"
             chmod +x "cc-test-reporter"
             pip install -r requirements.txt
-            pip install codacy-coverage
 
       - save_cache:
           paths:
@@ -65,7 +64,6 @@ jobs:
             ./cc-test-reporter before-build
             coverage run --omit=*/tests/* --source='./hc' manage.py test
             coverage xml
-            python-codacy-coverage -r coverage.xml
             ./cc-test-reporter after-build --exit-code $?
 
       - store_artifacts:
