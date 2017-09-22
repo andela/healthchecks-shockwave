@@ -29,7 +29,12 @@ channel_urls = [
     url(r'^([\w-]+)/verify/([\w-]+)/$', views.verify_email,
         name="hc-verify-email"),
 ]
+helpcenter_urls =[
+    url(r'^faqs/$', views.faqs, name='hc-faqs'),
+    url(r'^videos/$', views.videos, name='hc-videos'),
+    url(r'^video/(?P<pk>\d+)/$', views.single_video, name='hc-single-video'),
 
+]
 urlpatterns = [
     url(r'^$', views.index, name="hc-index"),
     url(r'^checks/$', views.my_checks, name="hc-checks"),
@@ -45,4 +50,9 @@ urlpatterns = [
     url(r'^about/$', views.about, name="hc-about"),
     url(r'^privacy/$', views.privacy, name="hc-privacy"),
     url(r'^terms/$', views.terms, name="hc-terms"),
+    
+    #add helpcenter urls
+    url(r'^help/$', views.helpcenter, name="hc-helpcenter" ),
+    url(r'^help/', include(helpcenter_urls))
+
 ]

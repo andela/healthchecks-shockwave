@@ -1,9 +1,7 @@
-# from django.test import TestCase
 from django.shortcuts import render, get_object_or_404, redirect
 from hc.test import BaseTestCase
 from django.views.generic import ListView
 from hc.blogs.models import BlogPost
-from hc.blogs.forms import BlogPostForm
 
 class BlogTestCase(BaseTestCase):
 	URL = "/blog/"
@@ -29,6 +27,7 @@ class BlogTestCase(BaseTestCase):
 		self.assertEquals(len(post), 3)
 		response = self.client.get(self.URL+'post/' + post_id +'/')
 		self. assertEquals(response.status_code, 200)
+		self.assertIn("Nairobi",response.content.decode('ascii'))
 
 	def test_update_blog_post(self):
 		post = BlogPost.objects.first()

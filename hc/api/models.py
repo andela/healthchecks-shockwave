@@ -22,6 +22,7 @@ STATUSES = (
 )
 DEFAULT_TIMEOUT = td(days=1)
 DEFAULT_GRACE = td(hours=1)
+DEFAULT_NAG_TIME = td(hours=1)
 CHANNEL_KINDS = (("email", "Email"), ("webhook", "Webhook"),
                  ("hipchat", "HipChat"),
                  ("slack", "Slack"), ("pd", "PagerDuty"), ("po", "Pushover"),
@@ -54,6 +55,9 @@ class Check(models.Model):
     alert_after = models.DateTimeField(null=True, blank=True, editable=False)
     alert_before = models.DateTimeField(null=True, blank=True, editable=False)
     status = models.CharField(max_length=6, choices=STATUSES, default="new")
+    nag_time = models.DurationField(default=DEFAULT_NAG_TIME)
+    nag_mode = models.BooleanField(default=True)
+    next_nag = models.DateTimeField(null=True, blank=True)
 
     def name_then_code(self):
         if self.name:
@@ -104,6 +108,15 @@ class Check(models.Model):
         grace_ends = up_ends + self.grace
         return up_ends < timezone.now() < grace_ends
 
+    def in_nag_period(self):
+        if self.status in ("new", "paused"):
+            return False
+        if not self.nag_mode:
+            return False
+        up_ends = self.last_ping + self.timeout
+        grace_ends = up_ends + self.grace
+        return timezone.now() > grace_ends
+
     def __before_reverse_grace_period(self):
         """
         Method that checks that a ping sent in reverse grace period
@@ -133,6 +146,8 @@ class Check(models.Model):
             "tags": self.tags,
             "timeout": int(self.timeout.total_seconds()),
             "grace": int(self.grace.total_seconds()),
+            "nag_time": int(self.nag_time.total_seconds()),
+            "nag_mode": self.nag_mode,
             "n_pings": self.n_pings,
             "status": self.get_status()
         }
