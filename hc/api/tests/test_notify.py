@@ -244,5 +244,5 @@ class NotifyTestCase(BaseTestCase):
 
         notification =  Notification.objects.get()
         self.assertEqual(notification.error, "Received status code 500")
-        
+
 

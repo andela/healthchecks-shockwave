@@ -44,21 +44,16 @@ class HcUserAdmin(UserAdmin):
         num_checks = Check.objects.filter(user=user).count()
         num_channels = Channel.objects.filter(user=user).count()
 
-        if num_checks == 0:
-            result += "0 checks, "
-        elif num_checks == 1:
-            result += "1 check, "
-        else:
-            result += "<strong>%d checks</strong>, " % num_checks
-
-        if num_channels == 0:
-            result += "0 channels"
-        elif num_channels == 1:
-            result += "1 channel, "
-        else:
-            result += "<strong>%d channels</strong>, " % num_channels
-
+        result += self.result("check", num_checks)
+        result += self.result("channel", num_channels)
         return result
+
+    def result(self, specific_type, num):
+        if num == 0:
+            return "0 %ss, " % (specific_type)
+        if num == 1:
+            return "1 %s, " % (specific_type)
+        return "<strong>%d %ss</strong>, " % (num, specific_type)
 
     involvement.allow_tags = True
 
