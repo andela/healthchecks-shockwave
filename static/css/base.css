@@ -61,6 +61,7 @@ body {
 .status.icon-up.new, .status.icon-paused { color: #CCC; }
 .status.icon-grace, .status.icon-up.often { color: #f0ad4e; }
 .status.icon-down { color: #d9534f; }
+.status.icon-nag { color: #880e4f; }
 
 .hc-dialog {
     background: #FFF;

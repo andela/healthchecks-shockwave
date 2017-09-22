@@ -38,11 +38,7 @@ class MyChecksTestCase(BaseTestCase):
 
         self.client.login(username="alice@example.org", password="password")
         response = self.client.get("/checks/")
-
-        # Desktop
-        self.assertContains(response, "icon-down")
-
-        # Mobile
+        self.assertContains(response, "icon-nag")
         self.assertContains(response, "label-danger")
 
     def test_it_shows_amber_check(self):
@@ -74,7 +70,6 @@ class MyChecksTestCase(BaseTestCase):
         # Desktop
         self.assertNotContains(response, "icon-up")
         self.assertNotContains(response, "icon-grace")
-        self.assertContains(response, "icon-down")
 
         # Mobile
         self.assertNotContains(response, "label-warning")
