@@ -21,18 +21,12 @@ class Command(BaseCommand):
         now = timezone.now()
         going_down = query.filter(alert_after__lt=now, status="up")
         going_up = query.filter(alert_after__gt=now, status="down")
-        nag_query = query.filter(next_nag__lte=now, status="down", nag_mode=True)
         # Don't combine this in one query so Postgres can query using index:
-        checks = list(going_down.iterator()) + list(going_up.iterator())+ list(nag_query.iterator())
+        checks = list(going_down.iterator()) + list(going_up.iterator())
         if not checks:
             return False
 
         futures = [executor.submit(self.handle_one, check) for check in checks]
-        for check in checks:
-            if check.status =="down":
-                check.next_nag = check.nag_time + now
-                check.save()
-
         for future in futures:
             future.result()
 

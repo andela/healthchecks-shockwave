@@ -22,8 +22,6 @@ def ping(request, code):
         return HttpResponseBadRequest()
 
     check.n_pings = F("n_pings") + 1
-    
-    check.status = check.ping_often()
     check.last_ping = timezone.now()
     if check.status in ("new", "paused"):
         check.status = "up"
@@ -64,8 +62,6 @@ def checks(request):
             check.timeout = td(seconds=request.json["timeout"])
         if "grace" in request.json:
             check.grace = td(seconds=request.json["grace"])
-        if "nag_time" in request.json:
-            check.nag_time = td(seconds=request.json["nag_time"])
 
         check.save()
 
