@@ -50,6 +50,7 @@ class Check(models.Model):
     timeout = models.DurationField(default=DEFAULT_TIMEOUT)
     grace = models.DurationField(default=DEFAULT_GRACE)
     n_pings = models.IntegerField(default=0)
+    priority = models.CharField(max_length=6, choices=STATUSES, default="Low")
     last_ping = models.DateTimeField(null=True, blank=True)
     alert_after = models.DateTimeField(null=True, blank=True, editable=False)
     alert_before = models.DateTimeField(null=True, blank=True, editable=False)
