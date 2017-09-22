@@ -21,7 +21,6 @@ DEBUG = True
 ALLOWED_HOSTS = []
 DEFAULT_FROM_EMAIL = 'healthchecks@example.org'
 USE_PAYMENTS = False
-SG_KEY = os.environ.get("SG_KEY")
 
 INSTALLED_APPS = (
     'django.contrib.admin',
@@ -136,7 +135,6 @@ STATICFILES_FINDERS = (
 )
 COMPRESS_OFFLINE = True
 
-# Email Cinfigurations
 EMAIL_BACKEND = "djmail.backends.default.EmailBackend"
 
 # Slack integration -- override these in local_settings
