@@ -31,7 +31,7 @@ def pairwise(iterable):
 
 @login_required
 def my_checks(request):
-    mychecks = Check.objects.filter(user=request.team.user).order_by("created")
+    mychecks = Check.objects.filter(user=request.team.user).order_by("priority", "created")
     checks = list(mychecks)
 
     counter = Counter()
@@ -186,6 +186,28 @@ def update_name(request, code):
         check.name = form.cleaned_data["name"]
         check.tags = form.cleaned_data["tags"]
         check.save()
+
+    return redirect("hc-checks")
+
+
+@login_required
+@uuid_or_400
+def update_priority(request, code):
+    """
+    Update check priority between High and Low
+    """
+    assert request.method == "POST"
+
+    check = get_object_or_404(Check, code=code)
+    if check.user_id != request.team.user.id:
+        return HttpResponseForbidden()
+
+    form = NameTagsForm(request.POST)
+    if check.priority == "Low":
+        check.priority = "High"
+    else:
+        check.priority = "Low"
+    check.save()
 
     return redirect("hc-checks")
 
