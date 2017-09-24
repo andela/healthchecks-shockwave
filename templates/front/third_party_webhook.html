@@ -1,0 +1,85 @@
+{% load compress humanize staticfiles hc_extras %}
+
+<form method="post" action="{% url 'hc-submit-webhook' %}">
+{% csrf_token %}
+
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">&times;</button>
+    <input type="hidden" name="store_url" value="{{ integration.value_store }}"/>
+</div>
+    <select data-dropdown-parent="true" class="ui-select" name="event">
+        <option selected="selected" value="carts/create">Cart creation</option>
+        <option value="carts/update">Cart update</option>
+        <option value="checkouts/create">Checkout creation</option>
+        <option value="checkouts/delete">Checkout deletion</option>
+        <option value="checkouts/update">Checkout update</option>
+        <option value="collection_listings/add">Collection listing creation</option>
+        <option value="collection_listings/remove">Collection listing deletion</option>
+        <option value="collection_listings/update">Collection listing update</option>
+        <option value="collections/create">Collection creation</option>
+        <option value="collections/delete">Collection deletion</option>
+        <option value="collections/update">Collection update</option>
+        <option value="customer_groups/create">Customer group creation</option>
+        <option value="customer_groups/delete">Customer group deletion</option>
+        <option value="customer_groups/update">Customer group update</option>
+        <option value="customers/create">Customer creation</option>
+        <option value="customers/delete">Customer deletion</option>
+        <option value="customers/disable">Customer disable</option>
+        <option value="customers/enable">Customer enable</option>
+        <option value="customers/update">Customer update</option>
+        <option value="draft_orders/create">Draft order creation</option>
+        <option value="draft_orders/delete">Draft order deletion</option>
+        <option value="draft_orders/update">Draft order update</option>
+        <option value="fulfillments/create">Fulfillment creation</option>
+        <option value="fulfillments/update">Fulfillment update</option>
+        <option value="orders/cancelled">Order cancellation</option>
+        <option value="orders/create">Order creation</option>
+        <option value="orders/delete">Order deletion</option>
+        <option value="orders/fulfilled">Order fulfillment</option>
+        <option value="orders/paid">Order payment</option>
+        <option value="orders/updated">Order update</option>
+        <option value="product_listings/add">Product listing creation</option>
+        <option value="product_listings/remove">Product listing deletion</option>
+        <option value="product_listings/update">Product listing update</option>
+        <option value="products/create">Product creation</option>
+        <option value="products/delete">Product deletion</option>
+        <option value="products/update">Product update</option>
+        <option value="refunds/create">Refund create</option>
+        <option value="shop/update">Shop update</option>
+        <option value="themes/create">Theme creation</option>
+        <option value="themes/delete">Theme deletion</option>
+        <option value="themes/publish">Theme publish</option>
+        <option value="themes/update">Theme update</option>
+    </select>
+    <hr></hr>
+    <table class="table channel-checks-table">
+        {% for check in checks %}
+        <tr>
+            <td>
+                <input
+                    type="checkbox"
+                    class="radio"
+                    name="check"
+                    value={{check.code}}
+                    >
+            </td>
+            <td>
+                {% if check.name %}
+                    {{ check.name }}
+                {% else %}
+                    <span class="unnamed">unnamed</span>
+                {% endif %}
+            </td>
+            <td>
+                <code>{{ check.code }}</code>
+            </td>
+        </tr>
+        {% endfor %}
+        </table>
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+    <button id="save-webhook" type="submit" class="btn btn-primary">Save</button>
+</div>
+</form>
+
+<script src="{% static 'js/third_party_webhook.js' %}"></script>
