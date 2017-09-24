@@ -1,5 +1,6 @@
 from django import forms
 from hc.api.models import Channel
+from hc.api.models import Integration
 
 
 class NameTagsForm(forms.Form):
@@ -41,3 +42,15 @@ class AddWebhookForm(forms.Form):
 
     def get_value(self):
         return "{value_down}\n{value_up}".format(**self.cleaned_data)
+
+    
+class AddShopifyForm(forms.ModelForm):
+    '''A class that represents a form that inserts data into the model for
+    third party integrations.
+    '''
+    class Meta:
+        '''The model is for thirdparty integrations and adds the fields listed below
+        into the database.
+        '''
+        model = Integration
+        fields = ['integration_name', 'value_store', 'value_api_key', 'value_store_password']
