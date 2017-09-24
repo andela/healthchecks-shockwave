@@ -125,6 +125,56 @@
         {% endif %}
     </table>
 
+    <table class="table channels-table">
+        {% if integrations %}
+        <tr>
+            <th>Third Party Integration</th>
+            <th>Store URL</th>
+            <th>Add Webhook</th>
+            <th>My Webhooks</th>
+            <th>Delete Store</th>
+        </tr>
+            {% for item in integrations %}
+            <tr class="integration-row">
+                <td>
+                {% if item.integration_name == "shopify" %} Shopify {% endif %}
+                </td>
+                <td class="value-cell">
+                    {% if item.integration_name == "shopify" %}
+                        {{ item.value_store }}
+                    {% endif %}
+                </td>
+                <td>
+                    <button
+                        type="button"
+                        data-name="{{ item.value_store }}"
+                        href="{% url 'hc-new-webhook' item.code %}"
+                        class="btn btn-success add-webhook">Add</button>
+                </td>
+                <td>
+                    <button
+                        type="button"
+                        data-name="{{ item.value_store }}"
+                        href="{% url 'hc-webhook-checks' item.code %}"
+                        class="btn btn-success edit-delete-webhooks">View</button>
+                </td>
+                <td>
+                    <button
+                        data-name="{{ item.value_store }}"
+                        data-url="{% url 'hc-remove-integration' item.code %}"
+                        class="btn btn-sm btn-default integration-remove"
+                        type="button">
+                        <span class="icon-delete"></span>
+                    </button>
+                </td>
+                <td>
+
+                </td>
+            </tr>
+            {% endfor %}
+        {% endif %}
+    </table>
+
 
     <h1 class="ai-title">Add More</h1>
     <ul class="add-integration">
@@ -227,6 +277,15 @@
                 Please <a href="https://github.com/healthchecks/healthchecks/issues">file an issue on GitHub</a>!
             </p>
         </li>
+    <h1 class="ai-title">3rd Party Integration</h1>
+        <li>
+            <img src="{% static 'img/integrations/shopify.png' %}"
+                 class="icon" alt="Shopify" />
+            <h2>Shopify</h2>
+            <p>Using shopify? You can now add checks to your store activities!</p> 
+            <a href="{% url 'hc-add-shopify' %}" class="btn btn-primary">Add Integration</a>
+        </li>
+    </ul>
 
     </ul>
 </div>
@@ -265,6 +324,45 @@
     </div>
 </div>
 
+<div id="remove-integration-modal" class="modal">
+    <div class="modal-dialog">
+        <form id="remove-integration-form" method="post">
+            {% csrf_token %}
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="remove-check-title">Remove Shopify Store <span class="remove-integration-name"></span></h4>
+                </div>
+                <div class="modal-body">
+                    <p>You are about to remove the shop
+                        <strong class="remove-integration-name">---</strong>.
+                    </p>
+                    <p>Once it's gone it's gone. But, if you change your
+                    mind later, you can create a similar shop again.</p>
+                    <p>Do you want to continue?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Remove</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="webhooks-modal"  class="modal">
+    <div class="modal-dialog" >
+        <div class="modal-content" id="aas">
+        </div>
+    </div>
+</div>
+
+<div id="add-webhooks-modal" class="modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
