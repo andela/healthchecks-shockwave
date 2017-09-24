@@ -6,6 +6,8 @@ import requests
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.validators import URLValidator
+from django.core.exceptions import ValidationError
 from django.db.models import Count
 from django.http import Http404, HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
@@ -14,11 +16,12 @@ from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.utils.six.moves.urllib.parse import urlencode
 from hc.api.decorators import uuid_or_400
-from hc.api.models import DEFAULT_GRACE, DEFAULT_TIMEOUT, Channel, Check, Ping
-from hc.front.forms import (AddChannelForm, AddWebhookForm, NameTagsForm,
+from hc.api.models import DEFAULT_GRACE, DEFAULT_TIMEOUT, Channel, Check, Ping, Integration
+from hc.front.forms import (AddChannelForm, AddShopifyForm, AddWebhookForm, NameTagsForm,
                             TimeoutForm)
 from hc.lib.sms import TwilioSendSms
 
+from hc.lib.shopify import ShopifyMessages
 
 
 # from itertools recipes:
@@ -317,6 +320,7 @@ def channels(request):
 
     channels = Channel.objects.filter(user=request.team.user).order_by("created")
     channels = channels.annotate(n_checks=Count("checks"))
+    integrations = Integration.objects.filter(user=request.team.user).order_by("created")
 
     num_checks = Check.objects.filter(user=request.team.user).count()
 
@@ -325,7 +329,8 @@ def channels(request):
         "channels": channels,
         "num_checks": num_checks,
         "enable_pushbullet": settings.PUSHBULLET_CLIENT_ID is not None,
-        "enable_pushover": settings.PUSHOVER_API_TOKEN is not None
+        "enable_pushover": settings.PUSHOVER_API_TOKEN is not None,
+        "integrations": integrations
     }
     return render(request, "front/channels.html", ctx)
 
@@ -407,6 +412,68 @@ def channel_checks(request, code):
 
     return render(request, "front/channel_checks.html", ctx)
 
+@login_required
+@uuid_or_400
+def webhook_checks(request, code):
+    '''Access a users shopify webhooks and displays them to the user.
+    
+    Key word arguments:
+    request -- Refers to the method of http passed in.
+    code -- A check to ascertain that code was passed. 
+    '''
+    integration = get_object_or_404(Integration, code=code)
+    if integration.user_id != request.team.user.id:
+        return HttpResponseForbidden()
+    checks = Check.objects.filter(user=request.team.user).order_by("created")
+    webhooks_data = ShopifyMessages().get_shopify_webhooks(integration.value_store)
+    mine_data = json.loads(webhooks_data)
+    webhooks = mine_data["webhooks"]
+    webhook_list = []
+    for webhook in webhooks:
+        mini_list = {"webhook_id":webhook["id"],
+                     "webhook_address": webhook["address"],
+                     "webhook_topic": webhook["topic"]}
+        webhook_list.append(mini_list)
+    ctx = {
+        "webhooks": webhook_list,
+        "integration": integration,
+        "checks": checks
+    }
+    return render(request, "front/webhook_checks.html", ctx)
+
+@login_required
+@uuid_or_400
+def third_party_webhook(request, code):
+    '''Render a page for adding webhooks on shopify.
+    
+    Key word arguments:
+    request -- Refers to the method of http passed in.
+    code -- A check to ascertain that code was passed. 
+    '''
+    integration = get_object_or_404(Integration, code=code)
+    if integration.user_id != request.team.user.id:
+        return HttpResponseForbidden()
+    checks = Check.objects.filter(user=request.team.user).order_by("created")
+
+    ctx = {
+        "checks": checks,
+        "integration": integration
+    }
+    return render(request, "front/third_party_webhook.html", ctx)
+
+@login_required
+def submit_webhook(request):
+    '''Post webhook to shopify'''
+    ShopifyMessages().add_shopify_webhook_check(request.POST["event"],
+                                                request.POST["check"],
+                                                request.POST["store_url"])
+    return redirect("hc-channels")
+
+@login_required
+def delete_webhook(request):
+    '''Delete webhook on shopify'''
+    ShopifyMessages().delete_webhook(request.POST["webhook-id"], request.POST["store_url"])
+    return redirect("hc-channels")
 
 @uuid_or_400
 def verify_email(request, code, token):
@@ -433,6 +500,18 @@ def remove_channel(request, code):
 
     return redirect("hc-channels")
 
+@login_required
+@uuid_or_400
+def remove_integration(request, code):
+    '''Remove shopify account'''
+    assert request.method == "POST"
+    # user may refresh the page during POST and cause two deletion attempts
+    integration = Integration.objects.filter(code=code).first()
+    if integration:
+        if integration.user != request.team.user:
+            return HttpResponseForbidden()
+        integration.delete()
+    return redirect("hc-channels")
 
 @login_required
 def add_email(request):
@@ -620,6 +699,33 @@ def add_victorops(request):
     ctx = {"page": "channels"}
     return render(request, "integrations/add_victorops.html", ctx)
 
+@login_required
+def add_shopify(request):
+    '''Render page for adding shopify'''
+    return render(request, "integrations/add_shopify.html", {"error_message":""})
+
+@login_required
+def add_integration(request):
+    '''Validate that user entered a url'''
+    assert request.method == "POST"
+    val = URLValidator()
+    try:
+        val(request.POST["value_store"])
+    except ValidationError as error_message:
+        return render(request, "integrations/add_shopify.html", {'error_message':error_message})
+    return do_add_integration(request, request.POST)
+
+def do_add_integration(request, data):
+    '''Add shopify integration into models'''
+    form = AddShopifyForm(data)
+    if form.is_valid():
+        integration = form.save(commit=False)
+        integration.user = request.team.user
+        integration.save()
+        return redirect("hc-channels")
+    else:
+        return HttpResponseBadRequest
+    return redirect("hc-channels")
 
 def privacy(request):
     return render(request, "front/privacy.html", {})
