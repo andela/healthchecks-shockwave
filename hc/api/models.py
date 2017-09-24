@@ -296,3 +296,19 @@ class Notification(models.Model):
     channel = models.ForeignKey(Channel)
     created = models.DateTimeField(auto_now_add=True)
     error = models.CharField(max_length=200, blank=True)
+
+class Integration(models.Model):
+    '''A class for third party integration applications. These are
+    applications that can use healthchecks for monitoring their
+    activities. They allow a user of healthchecks to easily set up
+    checks for their apps if they they use the integration.
+    '''
+    code = models.UUIDField(default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User)
+    created = models.DateTimeField(auto_now_add=True)
+    integration_name = models.CharField(max_length=20, default="")
+    value = models.TextField(blank=True)
+    checks = models.ManyToManyField(Check)
+    value_store = models.URLField()
+    value_api_key = models.TextField(blank=False)
+    value_store_password = models.TextField(blank=False)
