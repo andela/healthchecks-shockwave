@@ -62,16 +62,31 @@
             <div class="panel-body settings-block">
                 <h2>Team Access</h2>
                 {% if profile.member_set.count %}
+                    <p><i>For priority Lower is better (Highest Priority = 1)</i></p>
                     <table class="table">
                         <tr>
                             <td>{{ profile.user.email }}</td>
                             <td>Owner</td>
+                            <td>Priority</td>
                             <td></td>
                         </tr>
                         {% for member in profile.member_set.all %}
                         <tr>
                             <td>{{ member.user.email }} </td>
                             <td>Member</td>
+                            <td>
+                                <form id="update-priority-form" method="post">
+                                        {% csrf_token %}
+                                        <input
+                                                type="hidden"
+                                                name="email"
+                                                value="{{member.user.email}}" />
+                                        <button
+                                            type="submit"
+                                            name="update_priority"
+                                            class="btn btn-default">{{ member.priority }}</button>
+                                </form>
+                            </td>
                             <td>
                                 <a
                                     href="#"
