@@ -28,6 +28,8 @@ class InviteTeamMemberForm(forms.Form):
 class RemoveTeamMemberForm(forms.Form):
     email = LowercaseEmailField()
 
+class UpdatePriorityForm(forms.Form):
+    email = LowercaseEmailField()
 
 class TeamNameForm(forms.Form):
     team_name = forms.CharField(max_length=200, required=True)
