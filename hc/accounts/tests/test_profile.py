@@ -80,9 +80,8 @@ class ProfileTestCase(BaseTestCase):
         self.client.login(username="alice@example.org", password="password")
         self._invite_team_member("john@doe.org")
 
-        member_num = len(self.alice.profile.member_set.all())
         member = self._get_member("john@doe.org")
-        self.assertTrue(member.priority, member_num)
+        self.assertTrue(member.priority, "LOW")
 
     def test_update_priority(self):
         """
@@ -91,19 +90,15 @@ class ProfileTestCase(BaseTestCase):
         """
         self.client.login(username="alice@example.org", password="password")
         self._invite_team_member("john@doe.org")
-        self._invite_team_member("test@two.org")
+        member = self._get_member("john@doe.org")
+        self.assertTrue(member.priority, "LOW")
 
-        member_num = len(self.alice.profile.member_set.all())
-        member = self._get_member("test@two.org")
-        self.assertTrue(member.priority, member_num)
-
-        form = {"update_priority": "1", "email": "test@two.org"}
+        form = {"update_priority": "1", "email": "john@doe.org"}
         response = self.client.post("/accounts/profile/", form)
         self.assertEqual(response.status_code, 200)
 
-        member_num = len(self.alice.profile.member_set.all())
-        member = self._get_member("test@two.org")
-        self.assertTrue(member.priority, member_num)
+        member = self._get_member("john@doe.org")
+        self.assertTrue(member.priority, "HIGH")
 
     def test_add_team_member_checks_team_access_allowed_flag(self):
         """ Logs in a user whose profile by default doesn't allow team

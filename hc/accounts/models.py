@@ -71,8 +71,8 @@ class Profile(models.Model):
 
         emails.report(self.user.email, ctx)
 
-    def invite(self, user, priority_position):
-        member = Member(team=self, user=user, priority = priority_position)
+    def invite(self, user):
+        member = Member(team=self, user=user)
         member.save()
 
         # Switch the invited user over to the new team so they
@@ -86,6 +86,6 @@ class Profile(models.Model):
 class Member(models.Model):
     class Meta:
         ordering = ['priority']
-    priority = models.IntegerField(default=0)
+    priority = models.CharField(max_length=4, default="LOW")
     team = models.ForeignKey(Profile)
     user = models.ForeignKey(User)

@@ -132,7 +132,6 @@ def check_token(request, username, token):
 @login_required
 def profile(request):
     profile = request.user.profile
-    number_of_members = len(profile.member_set.all())
 
     # Switch user back to its default team
     if profile.current_team_id != profile.id:
@@ -177,7 +176,7 @@ def profile(request):
                     user = _make_user(email)
 
                 if not Member.objects.filter(team=profile,user=user):
-                    profile.invite(user, number_of_members+1)
+                    profile.invite(user)
                     messages.success(request, "Invitation to %s sent!" % email)
                 else:
                     messages.info(request, "%s is already in the team!" % email)
@@ -189,11 +188,6 @@ def profile(request):
                 farewell_user.profile.current_team = None
                 farewell_user.profile.save()
                 member = Member.objects.filter(team=profile, user=farewell_user).first()
-                members = Member.objects.filter(priority__gt=member.priority, team=profile)
-                for single_member in members:
-                    single_member.priority -= 1
-                    single_member.save()
-
                 member.delete()
 
                 messages.info(request, "%s removed from team!" % email)
@@ -215,13 +209,12 @@ def profile(request):
                 email = form.cleaned_data["email"]
                 user = User.objects.get(email=email)
                 member = Member.objects.filter(team=profile, user=user).first()
-                if(member.priority > 1):
-                    upper_member = Member.objects.filter(team=profile, priority=member.priority-1).first()
-                    member.priority -= 1
-                    upper_member.priority += 1
-                    member.save()
-                    upper_member.save()
-                    messages.success(request, "Priority Updated!")
+                if member.priority == "LOW":
+                    member.priority = "HIGH"
+                else:
+                    member.priority = "LOW"
+                member.save()
+                messages.success(request, "%s's priority updated!" % email)
 
 
     tags = set()
