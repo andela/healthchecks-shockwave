@@ -4,9 +4,11 @@
 {% csrf_token %}
 
 <div class="modal-header">
+    <p><strong>Choose an event and a check to create a webhook</strong></p>
     <button type="button" class="close" data-dismiss="modal">&times;</button>
     <input type="hidden" name="store_url" value="{{ integration.value_store }}"/>
 </div>
+    <center>
     <select data-dropdown-parent="true" class="ui-select" name="event">
         <option selected="selected" value="carts/create">Cart creation</option>
         <option value="carts/update">Cart update</option>
@@ -51,6 +53,7 @@
         <option value="themes/publish">Theme publish</option>
         <option value="themes/update">Theme update</option>
     </select>
+    </center>
     <hr></hr>
     <table class="table channel-checks-table">
         {% for check in checks %}
