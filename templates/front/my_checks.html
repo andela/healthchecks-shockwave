@@ -19,7 +19,9 @@
     <div id="my-checks-tags" class="col-sm-12">
         {% for tag, count in tags %}
             {% if tag in down_tags %}
-                <button class="btn btn-danger btn-xs" data-toggle="button">{{ tag }}</button>
+                <button class="btn btn-nag btn-xs" data-toggle="button">{{ tag }}</button>
+            {% elif tag in nag_time_tags %}
+                <button class="btn btn-nag btn-xs" data-toggle="button">{{ tag }}</button>                
             {% elif tag in grace_tags %}
                 <button class="btn btn-warning btn-xs" data-toggle="button">{{ tag }}</button>
             {% else %}
@@ -116,6 +118,7 @@
             {% csrf_token %}
             <input type="hidden" name="timeout" id="update-timeout-timeout" />
             <input type="hidden" name="grace" id="update-timeout-grace" />
+            <input type="hidden" name="nag_time" id="update-timeout-nag" />
             <div class="modal-content">
                 <div class="modal-body">
                     <div class="update-timeout-info text-center">
@@ -149,6 +152,22 @@
 
                     <div id="grace-slider"></div>
 
+                    <div class="update-timeout-info text-center">
+                        <span
+                            class="update-timeout-label"
+                            data-toggle="tooltip"
+                            title="When check is down, how often to wait between persistent notifications">
+                            Nag Time
+                        </span>
+                        <span
+                            id="nag-slider-value"
+                            class="update-timeout-value">
+                            1 day
+                        </span>
+                    </div>
+
+                    <div id="nag-slider"></div>
+
                     <div class="update-timeout-terms">
                         <p>
                             <span>Period</span>
@@ -157,6 +176,10 @@
                         <p>
                             <span>Grace Time</span>
                             When a check is late, how much time to wait until alert is sent.
+                        </p>
+                        <p>
+                            <span>Nag Time</span>
+                            The time between notifications when a check is still down
                         </p>
                     </div>
 
@@ -167,7 +190,7 @@
                 </div>
             </div>
         </form>
-    </div>
+    </div>P
 </div>
 
 <div id="remove-check-modal" class="modal">
