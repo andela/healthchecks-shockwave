@@ -6,6 +6,21 @@ from hc.api.models import Check
 
 class ProfileTestCase(BaseTestCase):
 
+    def _invite_team_member(self, email):
+        """
+        Method to invite new team members
+        """
+        form = {"invite_team_member": "1", "email": email}
+        response = self.client.post("/accounts/profile/", form)
+        self.assertEqual(response.status_code, 200)
+
+    def _get_member(self, email):
+        """
+        Method to get a specific member from a team
+        """
+        user = User.objects.get(email=email)
+        return Member.objects.filter(team=self.alice.profile,user=user).first()
+
     def test_it_sends_set_password_link(self):
         """ Asserts a set password email is sent during account set up """
         self.client.login(username="alice@example.org", password="password")
@@ -17,7 +32,7 @@ class ProfileTestCase(BaseTestCase):
         # profile.token should be set now
         self.alice.profile.refresh_from_db()
         token = self.alice.profile.token
-        
+
         ### Assert that the token is set
         self.assertTrue(token, "Token should be set")
 
@@ -43,11 +58,7 @@ class ProfileTestCase(BaseTestCase):
     def test_it_adds_team_member(self):
         """test adding member to a team, and invitation email assertion"""
         self.client.login(username="alice@example.org", password="password")
-
-        form = {"invite_team_member": "1", "email": "frank@example.org"}
-        response = self.client.post("/accounts/profile/", form)
-        self.assertEqual(response.status_code, 200)
-
+        self._invite_team_member("frank@example.org")
         member_emails = set()
         for member in self.alice.profile.member_set.all():
             member_emails.add(member.user.email)
@@ -60,6 +71,39 @@ class ProfileTestCase(BaseTestCase):
 
         ### Assert contents of the email body
         self.assertEqual(mail.outbox[0].subject, "You have been invited to join alice@example.org on healthchecks.io")
+
+    def test_adds_team_member_with_lowest_priority(self):
+        """
+        Test new team member is added with the lowest priority whereby the priority drops as the
+        value increases so the lowest priority in this case will be the number of members
+        """
+        self.client.login(username="alice@example.org", password="password")
+        self._invite_team_member("john@doe.org")
+
+        member_num = len(self.alice.profile.member_set.all())
+        member = self._get_member("john@doe.org")
+        self.assertTrue(member.priority, member_num)
+
+    def test_update_priority(self):
+        """
+        Test that when a members email is sent in the form update_priority, then he is assigned a higher priority and the
+        person that has a priority just higher than that member, the priority drops
+        """
+        self.client.login(username="alice@example.org", password="password")
+        self._invite_team_member("john@doe.org")
+        self._invite_team_member("test@two.org")
+
+        member_num = len(self.alice.profile.member_set.all())
+        member = self._get_member("test@two.org")
+        self.assertTrue(member.priority, member_num)
+
+        form = {"update_priority": "1", "email": "test@two.org"}
+        response = self.client.post("/accounts/profile/", form)
+        self.assertEqual(response.status_code, 200)
+
+        member_num = len(self.alice.profile.member_set.all())
+        member = self._get_member("test@two.org")
+        self.assertTrue(member.priority, member_num)
 
     def test_add_team_member_checks_team_access_allowed_flag(self):
         """ Logs in a user whose profile by default doesn't allow team
@@ -145,4 +189,3 @@ class ProfileTestCase(BaseTestCase):
         self.client.post("/accounts/profile/", {"revoke_api_key": '1'})
         api_key = User.objects.get(email='robert@example.org').profile.api_key
         self.assertFalse(api_key)
-        
