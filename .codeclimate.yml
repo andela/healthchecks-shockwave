@@ -7,5 +7,6 @@ languages:
 exclude_paths:
 - static/css/bootstrap.css
 - "**/migrations/**"
+- "**/tests/**"
 - "**.js"
 - "**.css"
