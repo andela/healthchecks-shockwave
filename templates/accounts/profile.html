@@ -66,12 +66,26 @@
                         <tr>
                             <td>{{ profile.user.email }}</td>
                             <td>Owner</td>
+                            <td>Priority</td>
                             <td></td>
                         </tr>
                         {% for member in profile.member_set.all %}
                         <tr>
                             <td>{{ member.user.email }} </td>
                             <td>Member</td>
+                            <td>
+                                <form id="update-priority-form" method="post">
+                                        {% csrf_token %}
+                                        <input
+                                                type="hidden"
+                                                name="email"
+                                                value="{{member.user.email}}" />
+                                        <button
+                                            type="submit"
+                                            name="update_priority"
+                                            class="btn btn-default">{{ member.priority }}</button>
+                                </form>
+                            </td>
                             <td>
                                 <a
                                     href="#"

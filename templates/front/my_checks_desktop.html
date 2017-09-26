@@ -8,7 +8,11 @@
             Period <br />
             <span class="checks-subline">Grace</span>
         </th>
+        <th class="th-period">
+            Nag Time
+        </th>
         <th>Last Ping</th>
+        <th>Priority</th>
         <th></th>
     </tr>
     {% for check in checks %}
@@ -20,12 +24,16 @@
             {% elif check.get_status == "paused" %}
                 <span class="status icon-paused"
                     data-toggle="tooltip" title="Monitoring paused. Ping to resume."></span>
+            {% elif check.in_nag_period %}
+                <span class="status icon-nag"></span>
             {% elif check.in_grace_period %}
                 <span class="status icon-grace"></span>
             {% elif check.get_status == "up" %}
                 <span class="status icon-up"></span>
             {% elif check.get_status == "down" %}
                 <span class="status icon-down"></span>
+            {% elif check.get_status == "often" %}
+                <span class="status icon-up often"></span>
             {% endif %}
         </td>
         <td class="name-cell">
@@ -62,6 +70,14 @@
                 </span>
             </span>
         </td>
+        <td class="timeout-cell">
+            <span
+                data-url="{% url 'hc-update-timeout' check.code %}"
+                data-nag="{{ check.nag_time.total_seconds }}"
+                class="timeout-nag">
+                {{ check.nag_time|hc_duration }}
+            </span>
+        </td>
         <td>
         {% if check.last_ping %}
             <span
@@ -72,6 +88,15 @@
         {% else %}
             Never
         {% endif %}
+        </td>
+        <td>
+            <span>
+                <a class="change-priority"
+                    href="#"
+                    data-url="{% url 'hc-update-priority' check.code %}">
+                    {{ check.priority }}
+                </a>
+            </span>
         </td>
         <td>
             <div class="check-menu dropdown">

@@ -13,7 +13,7 @@ from django.http import HttpResponseForbidden, HttpResponseBadRequest
 from django.shortcuts import redirect, render
 from hc.accounts.forms import (EmailPasswordForm, InviteTeamMemberForm,
                                RemoveTeamMemberForm, ReportSettingsForm,
-                               SetPasswordForm, TeamNameForm)
+                               SetPasswordForm, TeamNameForm, UpdatePriorityForm)
 from hc.accounts.models import Profile, Member
 from hc.api.models import Channel, Check
 from hc.lib.badges import get_badge_url
@@ -132,6 +132,7 @@ def check_token(request, username, token):
 @login_required
 def profile(request):
     profile = request.user.profile
+
     # Switch user back to its default team
     if profile.current_team_id != profile.id:
         request.team = profile
@@ -164,27 +165,30 @@ def profile(request):
                 return HttpResponseForbidden()
 
             form = InviteTeamMemberForm(request.POST)
-            if form.is_valid():
 
+            if form.is_valid():
                 email = form.cleaned_data["email"]
+                # if not [member for member in profile.member_set.all() if member.user.email == email]:
                 try:
                     user = User.objects.get(email=email)
+
                 except User.DoesNotExist:
                     user = _make_user(email)
 
-                profile.invite(user)
-                messages.success(request, "Invitation to %s sent!" % email)
+                if not Member.objects.filter(team=profile,user=user):
+                    profile.invite(user)
+                    messages.success(request, "Invitation to %s sent!" % email)
+                else:
+                    messages.info(request, "%s is already in the team!" % email)
         elif "remove_team_member" in request.POST:
             form = RemoveTeamMemberForm(request.POST)
             if form.is_valid():
-
                 email = form.cleaned_data["email"]
                 farewell_user = User.objects.get(email=email)
                 farewell_user.profile.current_team = None
                 farewell_user.profile.save()
-
-                Member.objects.filter(team=profile,
-                                      user=farewell_user).delete()
+                member = Member.objects.filter(team=profile, user=farewell_user).first()
+                member.delete()
 
                 messages.info(request, "%s removed from team!" % email)
         elif "set_team_name" in request.POST:
@@ -196,6 +200,22 @@ def profile(request):
                 profile.team_name = form.cleaned_data["team_name"]
                 profile.save()
                 messages.success(request, "Team Name updated!")
+        elif "update_priority" in request.POST:
+            if not profile.team_access_allowed:
+                return HttpResponseForbidden()
+
+            form = UpdatePriorityForm(request.POST)
+            if form.is_valid():
+                email = form.cleaned_data["email"]
+                user = User.objects.get(email=email)
+                member = Member.objects.filter(team=profile, user=user).first()
+                if member.priority == "LOW":
+                    member.priority = "HIGH"
+                else:
+                    member.priority = "LOW"
+                member.save()
+                messages.success(request, "%s's priority updated!" % email)
+
 
     tags = set()
     for check in Check.objects.filter(user=request.team.user):

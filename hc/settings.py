@@ -22,7 +22,6 @@ ALLOWED_HOSTS = []
 DEFAULT_FROM_EMAIL = 'healthchecks@example.org'
 USE_PAYMENTS = False
 
-
 INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.auth',
@@ -33,11 +32,15 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'compressor',
     'djmail',
+    'taggit',
+    'django_summernote',
+    'embed_video',
 
     'hc.accounts',
     'hc.api',
     'hc.front',
-    'hc.payments'
+    'hc.payments',
+    'hc.blogs',
 )
 
 MIDDLEWARE = (
@@ -69,7 +72,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'hc.payments.context_processors.payments'
+                'hc.payments.context_processors.payments',
+                # 'django.core.context_processors.request',
             ],
         },
     },
@@ -112,7 +116,7 @@ if os.environ.get("DB") == "mysql":
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Nairobi'
 
 USE_I18N = True
 
@@ -149,6 +153,23 @@ PUSHOVER_EMERGENCY_EXPIRATION = 86400
 # Pushbullet integration -- override these in local_settings
 PUSHBULLET_CLIENT_ID = None
 PUSHBULLET_CLIENT_SECRET = None
+
+#Setting Taggit to be case insenstive
+TAGGIT_CASE_INSENSITIVE = True
+
+#Summernote media Locations
+MEDIA_URL = '/static/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'static/media/')
+
+#Twilio integration -- override those in local_settings
+TWILIO_ACCOUNT_SID = None
+TWILIO_AUTH_TOKEN = None
+TWILIO_NUMBER = None
+TWILIO_VERIFY_NUMBER = None
+
+#Telegram integration -- override item on local_settings
+TELEGRAM_AUTH_TOKEN = None
+TELEGRAM_ID = None
 
 if os.path.exists(os.path.join(BASE_DIR, "hc/local_settings.py")):
     from .local_settings import *

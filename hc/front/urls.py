@@ -4,6 +4,7 @@ from hc.front import views
 
 check_urls = [
     url(r'^name/$', views.update_name, name="hc-update-name"),
+    url(r'^priority/$', views.update_priority, name="hc-update-priority"),
     url(r'^timeout/$', views.update_timeout, name="hc-update-timeout"),
     url(r'^pause/$', views.pause, name="hc-pause"),
     url(r'^remove/$', views.remove_check, name="hc-remove-check"),
@@ -18,6 +19,8 @@ channel_urls = [
     url(r'^add_pd/$', views.add_pd, name="hc-add-pd"),
     url(r'^add_slack/$', views.add_slack, name="hc-add-slack"),
     url(r'^add_slack_btn/$', views.add_slack_btn, name="hc-add-slack-btn"),
+    url(r'^add_sms/$', views.add_sms, name="hc-add-sms"),
+    url(r'^add_telegram/$', views.add_telegram, name="hc-add-telegram"),
     url(r'^add_hipchat/$', views.add_hipchat, name="hc-add-hipchat"),
     url(r'^add_pushbullet/$', views.add_pushbullet, name="hc-add-pushbullet"),
     url(r'^add_pushover/$', views.add_pushover, name="hc-add-pushover"),
@@ -27,7 +30,12 @@ channel_urls = [
     url(r'^([\w-]+)/verify/([\w-]+)/$', views.verify_email,
         name="hc-verify-email"),
 ]
+helpcenter_urls =[
+    url(r'^faqs/$', views.faqs, name='hc-faqs'),
+    url(r'^videos/$', views.videos, name='hc-videos'),
+    url(r'^video/(?P<pk>\d+)/$', views.single_video, name='hc-single-video'),
 
+]
 urlpatterns = [
     url(r'^$', views.index, name="hc-index"),
     url(r'^checks/$', views.my_checks, name="hc-checks"),
@@ -35,9 +43,17 @@ urlpatterns = [
     url(r'^checks/([\w-]+)/', include(check_urls)),
     url(r'^integrations/', include(channel_urls)),
 
+    #add failed tasks url
+    url(r'^checks/failed/$', views.my_failed_checks, name="hc-failed-checks"),
+
     url(r'^docs/$', views.docs, name="hc-docs"),
     url(r'^docs/api/$', views.docs_api, name="hc-docs-api"),
     url(r'^about/$', views.about, name="hc-about"),
     url(r'^privacy/$', views.privacy, name="hc-privacy"),
     url(r'^terms/$', views.terms, name="hc-terms"),
+    
+    #add helpcenter urls
+    url(r'^help/$', views.helpcenter, name="hc-helpcenter" ),
+    url(r'^help/', include(helpcenter_urls))
+
 ]

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load embed_video_tags %}
+
+{% block title %}Healthchecks Help Videos - healthchecks.io{% endblock %}
+{% block content%}
+<div style="text-align: right">
+<a class="top-menu" href="{% url  'hc-helpcenter' %}"><span>Back to HelpCenter</span></a>
+</div>
+<h1>Healthchecks Help Videos</h1>
+{% if video|length <= 0 %}
+	<h2>Ooops!! We dont have any help videos created yet. This page is still being updated.</h2>
+{% endif%}
+{% for video in videos %}
+	<ul>
+		<li>
+			<div>
+			<h2><a href="{% url 'hc-single-video' pk=video.pk %}">{{ video.title}}</a></h2>
+		</div>
+		</li>
+	</ul>
+{% endfor %}
+
+
+{% endblock %}

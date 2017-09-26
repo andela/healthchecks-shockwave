@@ -1,0 +1,66 @@
+{% extends "base.html" %} 
+
+{%block content%}
+<h1>Healthchecks Blog Posts</h1>
+{% if user.is_authenticated %}
+        <a href="{% url 'hc-blog-add' %}" class="top-menu"><span>Add Post</span></a>
+        {% if tag %}
+        | <a href="{% url 'hc-blogs' %}" class="top-menu"><span >Back to Posts</span></a>
+        {% endif %}
+{% endif %}
+<div>
+  {% if blogposts|length <= 0 %}
+  <div>
+    <h2>Ooops!! We don't have any posts here. Create Some or Contact Administrator. </h2>
+  </div>
+  {% endif %}
+</div>
+{% if tag %}
+<div>
+   <h2>Posts tagged with "{{ tag.name }}"</h2>
+</div>
+{% endif %}
+<div class=container>
+	<div class="row">
+		{% for blogpost in blogposts %}
+		<div class="col-md-4">
+			<div class="thumbnail">
+			<h3><a href="{% url 'hc-blog-detail' pk=blogpost.pk %}"><b>{{ blogpost.title}}</b></a></h3>
+			<div class="date"> Category: 
+        {% for tag in blogpost.tags.all %}
+          <a href="{% url 'post_list_by_tag' tag.slug %}">{{tag.name}}</a>
+          {% if not forloop.last %}, {% endif %}
+        {% endfor %}
+    		</div>
+    		Published On: {{blogpost.published_date}}
+			<p>{{ blogpost.text| safe |linebreaksbr | truncatechars_html:100 }}</p>
+			</div>
+		</div>
+		{% endfor %}
+	</div>
+</div>
+
+
+{% if blogposts%}
+  <ul class="pagination">
+    {% if blogposts.has_previous %}
+      <li><a href="?page={{ blogposts.previous_page_number }}">Previous</a></li>
+    {% else %}
+      <li class="disabled"><span>Previous</span></li>
+    {% endif %}
+    {% for i in blogposts.paginator.page_range %}
+      {% if blogposts.number == i %}
+        <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+      {% else %}
+        <li><a href="?page={{ i }}">{{ i }}</a></li>
+      {% endif %}
+    {% endfor %}
+    {% if blogposts.has_next %}
+      <li><a href="?page={{ blogposts.next_page_number }}">Next</a></li>
+    {% else %}
+      <li class="disabled"><span>Next</span></li>
+    {% endif %}
+  </ul>
+{% endif %}
+
+{%endblock content%}

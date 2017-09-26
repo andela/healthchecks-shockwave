@@ -84,5 +84,8 @@ class Profile(models.Model):
 
 
 class Member(models.Model):
+    class Meta:
+        ordering = ['priority']
+    priority = models.CharField(max_length=4, default="LOW")
     team = models.ForeignKey(Profile)
     user = models.ForeignKey(User)
