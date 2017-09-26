@@ -1,0 +1,5 @@
+{% if check.status == "down" %}
+From healthchecks.io, the check {{ check.name_then_code }} is DOWN
+{% else %}
+From healthchecks.io, the check {{ check.name_then_code }} received a ping and is now UP
+{% endif %}

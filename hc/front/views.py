@@ -1,7 +1,7 @@
 from collections import Counter
 from datetime import timedelta as td
 from itertools import tee
-
+import json
 import requests
 from django.conf import settings
 from django.contrib import messages
@@ -17,6 +17,8 @@ from hc.api.decorators import uuid_or_400
 from hc.api.models import DEFAULT_GRACE, DEFAULT_TIMEOUT, Channel, Check, Ping
 from hc.front.forms import (AddChannelForm, AddWebhookForm, NameTagsForm,
                             TimeoutForm)
+from hc.lib.sms import TwilioSendSms
+
 
 
 # from itertools recipes:
@@ -29,8 +31,8 @@ def pairwise(iterable):
 
 @login_required
 def my_checks(request):
-    q = Check.objects.filter(user=request.team.user).order_by("created")
-    checks = list(q)
+    mychecks = Check.objects.filter(user=request.team.user).order_by("priority", "created")
+    checks = list(mychecks)
 
     counter = Counter()
     down_tags, grace_tags = set(), set()
@@ -58,6 +60,43 @@ def my_checks(request):
     }
 
     return render(request, "front/my_checks.html", ctx)
+
+
+@login_required
+def my_failed_checks(request):
+    mychecks = Check.objects.filter(user=request.team.user).order_by("created")
+    checks = list(mychecks)
+
+    counter = Counter()
+    failed_checks = []
+    down_tags, grace_tags = set(), set()
+    for check in checks:
+        if check.get_status() == "down":
+            failed_checks.append(check)
+
+        status = check.get_status()
+        for tag in check.tags_list():
+            if tag == "":
+                continue
+
+            counter[tag] += 1
+
+            if status == "down":
+                down_tags.add(tag)
+            elif check.in_grace_period():
+                grace_tags.add(tag)
+
+    ctx = {
+        "page": "failed-checks",
+        "checks": failed_checks,
+        "now": timezone.now(),
+        "tags": counter.most_common(),
+        "down_tags": down_tags,
+        "grace_tags": grace_tags,
+        "ping_endpoint": settings.PING_ENDPOINT
+    }
+
+    return render(request, "front/my_failed_checks.html", ctx)
 
 
 def _welcome_check(request):
@@ -147,6 +186,28 @@ def update_name(request, code):
         check.name = form.cleaned_data["name"]
         check.tags = form.cleaned_data["tags"]
         check.save()
+
+    return redirect("hc-checks")
+
+
+@login_required
+@uuid_or_400
+def update_priority(request, code):
+    """
+    Update check priority between High and Low
+    """
+    assert request.method == "POST"
+
+    check = get_object_or_404(Check, code=code)
+    if check.user_id != request.team.user.id:
+        return HttpResponseForbidden()
+
+    form = NameTagsForm(request.POST)
+    if check.priority == "Low":
+        check.priority = "High"
+    else:
+        check.priority = "Low"
+    check.save()
 
     return redirect("hc-checks")
 
@@ -292,12 +353,39 @@ def channels(request):
 
 
 def do_add_channel(request, data):
+    '''A method that adds a channel and assigns it all the checks. For email
+    it sends a verification link. For SMS it validates the users number. For
+    telegram it validates the user's account.
+    '''
     form = AddChannelForm(data)
     if form.is_valid():
         channel = form.save(commit=False)
+        if channel.kind == "sms" and not TwilioSendSms().check_number(data["value"]):
+            number_entered = data["value"]
+            error_message = "The number %s is not a valid number." % number_entered
+            return render(request, "integrations/add_sms.html", {'error_message':error_message})
+        if channel.kind == "telegram":
+            url = "https://api.telegram.org/bot%s/getupdates"% settings.TELEGRAM_AUTH_TOKEN
+            response_data = requests.get(url)
+            json_data = json.loads(response_data.content)
+            counter = 0
+            items = json_data["result"]
+            while counter < len(json_data["result"]):
+                if items[counter]["message"]["from"]["first_name"].lower() == data["first_name"].lower():
+                    if items[counter]["message"]["from"]["last_name"].lower() == data["last_name"].lower():
+                        channel.value = items[counter]["message"]["from"]["first_name"]
+                        channel.telegram_id = int(items[counter]["message"]["from"]["id"])
+                        counter = len(json_data["result"])
+                counter += 1
+            if not channel.value:
+                script1 = "The First and Last Names entered do not match a valid user "
+                script2 = "for the telegram bot. Ensure that you entered the right names"
+                script3 = " and that you pressed the start button on the bot message"
+                e_message = "%s"%(script1+script2+script3)
+                return render(request,
+                              "integrations/add_telegram.html", {"error_message": e_message})
         channel.user = request.team.user
         channel.save()
-
         channel.assign_all_checks()
 
         if channel.kind == "email":
@@ -307,11 +395,20 @@ def do_add_channel(request, data):
     else:
         return HttpResponseBadRequest()
 
+@login_required
+def add_telegram(request):
+    '''A method that renders a page for adding telegram'''
+    return render(request, "integrations/add_telegram.html", {"error_message":""})
 
 @login_required
 def add_channel(request):
     assert request.method == "POST"
     return do_add_channel(request, request.POST)
+
+@login_required
+def add_sms(request):
+    '''A method that renders a page for adding sms.'''
+    return render(request, "integrations/add_sms.html", {'error_message':""})
 
 
 @login_required
