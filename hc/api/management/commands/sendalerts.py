@@ -6,6 +6,8 @@ from django.core.management.base import BaseCommand
 from django.db import connection
 from django.utils import timezone
 from hc.api.models import Check
+from hc.api.models import Channel
+from hc.accounts.models import Member
 
 executor = ThreadPoolExecutor(max_workers=10)
 logger = logging.getLogger(__name__)
@@ -45,12 +47,33 @@ class Command(BaseCommand):
         Return False if no checks need to be processed.
 
         """
-
         # Save the new status. If sendalerts crashes,
         # it won't process this check again.
+        if check.status == check.get_status() and check.priority == "High":
+            self.notify_members(check)
+
         check.status = check.get_status()
         check.save()
+        self.send_alert(check)
+        print("="*70)
+        connection.close()
+        return True
 
+    def notify_members(self, check):
+        """
+        Notify members in the team
+        """
+        members = Member.objects.filter(team=check.user.profile, priority="HIGH").all()
+        for member in members:
+            channel = Channel.objects.filter(value=member.user.email).first()
+            error = channel.notify(check)
+            if error not in ("", "no-op"):
+                print("%s, %s" % (channel, error))
+
+    def send_alert(self, check):
+        """
+        Notify the user
+        """
         tmpl = "\nSending alert, status=%s, code=%s\n"
         self.stdout.write(tmpl % (check.status, check.code))
         errors = check.send_alert()
@@ -58,7 +81,7 @@ class Command(BaseCommand):
             self.stdout.write("ERROR: %s %s %s\n" % (ch.kind, ch.value, error))
 
         connection.close()
-        return True
+
 
     def handle(self, *args, **options):
         self.stdout.write("sendalerts is now running")
