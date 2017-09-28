@@ -59,6 +59,11 @@ class ProfileTestCase(BaseTestCase):
         """test adding member to a team, and invitation email assertion"""
         self.client.login(username="alice@example.org", password="password")
         self._invite_team_member("frank@example.org")
+
+        form = {"invite_team_member": "1", "email": "frank@example.org"}
+        response = self.client.post("/accounts/profile/", form)
+        self.assertEqual(response.status_code, 200)
+
         member_emails = set()
         for member in self.alice.profile.member_set.all():
             member_emails.add(member.user.email)
@@ -99,6 +104,7 @@ class ProfileTestCase(BaseTestCase):
 
         member = self._get_member("john@doe.org")
         self.assertTrue(member.priority, "HIGH")
+
 
     def test_add_team_member_checks_team_access_allowed_flag(self):
         """ Logs in a user whose profile by default doesn't allow team

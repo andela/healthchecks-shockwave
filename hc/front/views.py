@@ -35,7 +35,6 @@ class GraceAndDownTags(object):
                 continue
 
             self.counter[tag] += 1
-
             if status == "down":
                 self.down_tags.add(tag)
             elif check.in_grace_period():
@@ -183,6 +182,7 @@ def update_name(request, code):
 
     return redirect("hc-checks")
 
+
 @login_required
 @uuid_or_400
 def update_priority(request, code):
@@ -204,7 +204,7 @@ def update_priority(request, code):
 
     return redirect("hc-checks")
 
-
+  
 @login_required
 @uuid_or_400
 def update_timeout(request, code):
