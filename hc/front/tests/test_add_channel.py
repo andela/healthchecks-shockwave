@@ -44,14 +44,12 @@ class AddChannelTestCase(BaseTestCase):
             r = self.client.get(url)
             self.assertContains(r, "Integration Settings", status_code=200)
 
-    ### Test that the team access works
     def test_team_access_works(self):
-        '''Test that team members can view all added channels, added by any
-        member in the team while non-members cannot.
-        Bob a team member adds an email channel. Alice logs in and views email
-        channel added on her page. Test that channel added contains the user
-        name of the alice who is the team creator.
-        '''
+        """Test that team members can view all channels that any of its members adds.
+        Bob who is part of the team, adds an email channel. Alice logs in and views
+        email channel added on her page. Test that the channel contains the user name
+        of the alice who is the team creator.
+        """
         url = "/integrations/add/"
         form = {"kind": "email", "value": "team_email@example.org"}
         self.client.login(username="bob@example.org", password="password")
@@ -64,7 +62,6 @@ class AddChannelTestCase(BaseTestCase):
         get_added_channel = Channel.objects.get(value="team_email@example.org")
         self.assertEqual(get_added_channel.user.username, 'alice')
 
-    ### Test that bad kinds don't work
     def test_bad_kind_doesnt_work(self):
         '''Test that bad kinds of channels cannot be added
         A bad kind of channel, a channel that does not exist on the tuple
@@ -78,12 +75,12 @@ class AddChannelTestCase(BaseTestCase):
         self.assertEqual(post_bad_channel.status_code, 400)
 
     def test_interference_across_teams(self):
-        '''Test that team creator cannot access non-team members channels.
+        """Test that team creator cannot access non-team members channels.
         Charlie adds a channel and does not belong to any team. Alice owns a
-        team but cannot acces channels that belong to Charlie. Charlies added
-        channel also stores the user as charlie creating no conflict on non-
+        team but cannot acces channels that belong to Charlie. Charlies
+        channels also stores the user as charlie creating no conflict on non-
         team members.
-        '''
+        """
         url = "/integrations/add/"
         form = {"kind": "email", "value": "team_email_2@example.org"}
         self.client.login(username="charlie@example.org", password="password")
