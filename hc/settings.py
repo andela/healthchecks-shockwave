@@ -34,7 +34,7 @@ INSTALLED_APPS = (
     'djmail',
     'taggit',
     'django_summernote',
-
+    'embed_video',
     'hc.accounts',
     'hc.api',
     'hc.front',
@@ -71,7 +71,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'hc.payments.context_processors.payments'
+                'hc.payments.context_processors.payments',
+                # 'django.core.context_processors.request',
             ],
         },
     },

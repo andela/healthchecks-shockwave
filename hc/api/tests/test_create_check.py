@@ -26,7 +26,8 @@ class CreateCheckTestCase(BaseTestCase):
             "name": "Foo",
             "tags": "bar,baz",
             "timeout": 3600,
-            "grace": 60
+            "grace": 60,
+            "nag_time": 60
         })
 
         self.assertEqual(r.status_code, 201)
@@ -85,7 +86,6 @@ class CreateCheckTestCase(BaseTestCase):
     def test_for_assignment_of_channels(self):
         channel = Channel(user=self.alice)
         channel.save()
-
         resp = self.post({"api_key" : "abc", "channels" : "*"})
         self.assertEqual(resp.status_code, 201)
         check = Check.objects.get()

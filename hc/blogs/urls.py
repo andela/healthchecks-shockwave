@@ -7,4 +7,5 @@ urlpatterns=[
     url(r'post/new/', views.post_new,name ='hc-blog-add'),
     url(r'post/(?P<pk>\d+)/edit/', views.post_edit, name = 'hc-blog-edit'),
     url(r'post/(?P<pk>\d+)/delete/', views.delete_post, name = 'hc-blog-delete'),
+    url(r'^tag/(?P<tag_slug>[-\w]+)/$', views.post_list, name='post_list_by_tag')
 ]

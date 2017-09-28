@@ -22,7 +22,11 @@
     white-space: nowrap;
 
 }
-
+.btn-nag {
+    color: #ffffff;
+    background-color: #880e4f!important;
+    border-color: #770d3e;
+}
 #period-slider {
     margin: 20px 50px 80px 50px;
 }
@@ -32,14 +36,22 @@
 }
 
 #grace-slider {
-    margin: 20px 50px 110px 50px;
+    margin: 20px 50px 80px 50px;
 }
 
 #grace-slider.noUi-connect {
   background: #f0ad4e;
 }
 
-#period-slider .noUi-value, #grace-slider .noUi-value {
+#nag-slider {
+    margin: 20px 50px 110px 50px;
+}
+
+#nag-slider.noUi-connect {
+  background: #880e4f;
+}
+
+#period-slider .noUi-value, #grace-slider .noUi-value, #nag-slider .noUi-value {
     width: 60px;
     margin-left: -30px;
 }
